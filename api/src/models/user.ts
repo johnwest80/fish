@@ -38,6 +38,8 @@ UserSchema.methods.verifyPassword = function(password: string, cb: (err: any, is
       return cb(err);
     } else if (!isMatch) {
       return cb('Incorrect username or password');
+    } else {
+      return cb(null, true);
     }
   });
 };

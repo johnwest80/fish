@@ -30,21 +30,20 @@ export class AuthenticationService {
         User.findOne({ username }, (err: any, user: IUser) => {
             if (err) {
                 res.status(500).send('Error on the server.');
-            }
-            if (!user) {
+            } else if (!user) {
                 res.status(404).send('No user found.');
+            } else {
+                user.verifyPassword(req.body.password, (verifyErr) => {
+                    if (verifyErr) {
+                        res.status(401).send('Username or password incorrect.');
+                    } else {
+                        const token = jwt.sign({ id: user._id }, secret, {
+                            expiresIn: 86400 // expires in 24 hours
+                        });
+                        res.status(200).send({ auth: true, token });
+                    }
+                });
             }
-
-            user.verifyPassword(req.body.password, (verifyErr) => {
-                if (verifyErr) {
-                     res.status(401).send('Username or password incorrect.');
-                }
-            });
-
-            const token = jwt.sign({ id: user._id }, secret, {
-                expiresIn: 86400 // expires in 24 hours
-            });
-            res.status(200).send({ auth: true, token });
         });
     }
 }
