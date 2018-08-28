@@ -1,8 +1,8 @@
-import * as bodyParser from 'body-parser';
-import express from 'express';
-import mongoose from 'mongoose';
+import bodyParser = require('body-parser');
+import express = require('express');
+import  mongoose = require('mongoose');
 import { database, dbUsername, dbPassword } from '../config/database';
-import morgan from 'morgan';
+import morgan = require('morgan');
 
 // Import WelcomeController from controllers entry point
 import { WelcomeController } from './controllers';

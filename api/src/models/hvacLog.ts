@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { IHvacLog } from './iHvacLog';
 
-const HvacLogSchema = new mongoose.Schema({
+const HvacLogSchema = new Schema({
     temperature: { type: Number, required: true },
     deviceId: { type: String, required: true, unique: false },
     accountId: { type: String, required: true },
@@ -12,4 +12,4 @@ const HvacLogSchema = new mongoose.Schema({
     dt: { type: String, required: true },
 });
 
-export const HvacLog = mongoose.model<IHvacLog>('HvacLog', HvacLogSchema);
+export const HvacLog = model<IHvacLog>('HvacLog', HvacLogSchema);
