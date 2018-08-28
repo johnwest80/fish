@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "engines" : {"node" : "8.9.3"},
+  "engines": {
+    "node": "8.9.3"
+  },
   "scripts": {
-    "build": "npx tsc src/server.ts --outDir ./dist",
+    "build": "node_modules/.bin/tsc src/server.ts --outDir ./dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run lint && npm run build:live",
     "start:prod": "node dist/src/server.js",

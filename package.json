@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "engines" : {"node" : "8.9.3"},
+  "engines": {
+    "node": "8.9.3"
+  },
   "scripts": {
     "install": "cd api && npm install && npm run build",
     "start": "node api/dist/src/server.js",
