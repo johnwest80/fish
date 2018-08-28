@@ -1,0 +1,17 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <h1>Users</h1>
+    </div>
+  </div>
+  <ng-container *ngFor="let user of users">
+    <div class="row">
+      <div class="col-sm">
+        <h3>{{ user.username }}</h3>
+      </div>
+      <div class="col-sm">
+        Id: {{ user._id }}
+      </div>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,25 @@
+{
+  "name": "fish",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install": "cd api && npm install",
+    "start": "cd api && npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnwest80/fish.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/johnwest80/fish/issues"
+  },
+  "homepage": "https://github.com/johnwest80/fish#readme",
+  "dependencies": {
+    "mongodb": "^3.0.4",
+    "mongoose": "^5.0.11"
+  }
+}
