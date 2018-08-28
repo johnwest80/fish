@@ -1,9 +1,10 @@
 import { Response, Request, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { secret } from '../../config/database';
 import { IUser } from '../models/iuser';
-import bcrypt from 'bcrypt';
 import { User } from '../models/user';
+
+const tokenSecret = process.env.secret || secret;
 
 export class AuthenticationService {
     public static verifyToken(req: Request, res: Response, next: NextFunction) {
@@ -11,7 +12,7 @@ export class AuthenticationService {
         if (!token) {
             return res.status(403).send({ auth: false, message: 'No token provided.' });
         }
-        jwt.verify(token, secret, (err, decoded: any) => {
+        jwt.verify(token, tokenSecret, (err, decoded: any) => {
             if (err) {
                 return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
             }
@@ -37,7 +38,7 @@ export class AuthenticationService {
                     if (verifyErr) {
                         res.status(401).send('Username or password incorrect.');
                     } else {
-                        const token = jwt.sign({ id: user._id }, secret, {
+                        const token = jwt.sign({ id: user._id }, tokenSecret, {
                             expiresIn: 86400 // expires in 24 hours
                         });
                         res.status(200).send({ auth: true, token });

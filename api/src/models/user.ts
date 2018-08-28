@@ -1,9 +1,10 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import { Schema, model } from 'mongoose';
+import bcrypt = require('bcrypt');
 import { IUser } from './iuser';
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
+  foo: String,
   email: String,
   password: { type: String, required: true, unique: true }
 });
@@ -44,4 +45,4 @@ UserSchema.methods.verifyPassword = function(password: string, cb: (err: any, is
   });
 };
 
-export const User = mongoose.model<IUser>('User', UserSchema);
+export const User = model<IUser>('User', UserSchema);

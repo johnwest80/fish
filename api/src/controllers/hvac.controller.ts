@@ -2,7 +2,7 @@ import { Request, Response, Router, NextFunction } from 'express';
 import { AuthenticationService } from '../services/AuthenticationService';
 import { HvacLog } from '../models/hvacLog';
 import { IHvacLog } from '../models/iHvacLog';
-import mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 
 const router: Router = Router();
 
