@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc src/server.ts --outDir ./dist",
+    "build": "npx tsc src/server.ts --outDir ./dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run lint && npm run build:live",
     "start:prod": "node dist/src/server.js",
@@ -25,7 +25,8 @@
     "morgan": "^1.9.0",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
-    "ts-node": "^5.0.1"
+    "ts-node": "^5.0.1",
+    "tsc": "^1.20150623.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^1.0.0",
@@ -33,6 +34,6 @@
     "@types/mongoose": "^5.2.7",
     "nodemon": "^1.17.2",
     "tslint": "^5.9.1",
-    "typescript": "^2.7.2"
+    "typescript": "^2.9.2"
   }
 }
