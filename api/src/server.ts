@@ -9,7 +9,8 @@ import { WelcomeController } from './controllers';
 import { SecurityController } from './controllers/security.controller';
 import { HvacController } from './controllers/hvac.controller';
 
-mongoose.connect(database, { user: dbUsername, pass: dbPassword });
+mongoose.connect(process.env.database || database,
+  { user: process.env.dbUsername || dbUsername, pass: process.env.dbPassword || dbPassword });
 const db = mongoose.connection;
 db.once('open', () => {
   // Create a new express application instance
