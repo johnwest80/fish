@@ -4,7 +4,6 @@ import { IUser } from './iuser';
 
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
-  foo: String,
   email: String,
   password: { type: String, required: true, unique: true }
 });
