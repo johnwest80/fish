@@ -1,11 +1,15 @@
+import * as bodyParser from 'body-parser';
 import express from 'express';
 import mongoose from 'mongoose';
-import { database } from '../config/database';
+import { database, dbUsername, dbPassword } from '../config/database';
+import morgan from 'morgan';
 
 // Import WelcomeController from controllers entry point
 import { WelcomeController } from './controllers';
+import { SecurityController } from './controllers/security.controller';
+import { HvacController } from './controllers/hvac.controller';
 
-mongoose.connect(database);
+mongoose.connect(database, { user: dbUsername, pass: dbPassword });
 const db = mongoose.connection;
 db.once('open', () => {
   // Create a new express application instance
@@ -13,12 +17,28 @@ db.once('open', () => {
   // The port the express app will listen on
   const port: number = (process.env.PORT || 3000) as number;
 
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
+
   // Mount the WelcomeController at the /welcome route
   app.use('/welcome', WelcomeController);
+  app.use('/security', SecurityController);
+  app.use('/hvac', HvacController);
 
+  app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (error && error.message) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error });
+    }
+  });
+
+  // use morgan to log requests to the console
+  app.use(morgan('dev'));
   // Serve the application at the given port
   app.listen(port, () => {
     // Success callback
+    // tslint:disable-next-line:no-console
     console.log(`Listening at http://localhost:${port}/`);
   });
 });

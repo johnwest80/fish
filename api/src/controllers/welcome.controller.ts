@@ -13,16 +13,17 @@ router.get('/', (req: Request, res: Response) => {
   res.send('Hello, World!');
 });
 
-router.get('/create', (req: Request, res: Response) => {
-  const user = new User({ username: 'johnwest80' } as IUser);
-  user.save((err) => {
-    res.send(err);
-  });
-});
-
 router.get('/getall', (req: Request, res: Response) => {
   User.find().then((users) => {
     res.send(users);
+  });
+});
+
+router.get('/getone', (req: Request, res: Response) => {
+  User.find().then((users) => {
+    return users[3].verifyPassword('abcde', (err, isMatch) => {
+      res.send({ pwd: users[0].password, err, isMatch });
+    });
   });
 });
 
