@@ -1,49 +1,43 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const hvacLog_1 = require("../models/hvacLog");
+const LogEntrySchema_1 = require("../models/LogEntrySchema");
 const router = express_1.Router();
-router.post('/log', (req, res, next) => {
-    console.log(req.body);
-    const log = new hvacLog_1.HvacLog({
-        temperature: req.body.temperature,
-        deviceId: req.body.deviceId, accountId: req.body.accountId, groupTick: req.body.groupTick,
-        yr: req.body.yr, mnth: req.body.mnth, dy: req.body.dy, dt: req.body.dt
-    });
-    log.save((err) => {
-        res.send(err);
-    });
-});
 router.get('/history', (req, res) => {
     // tslint:disable-next-line:max-line-length
     const pipeline = [
-        { $sort: { temperature: 1 } },
-        { $match: { $and: [{ deviceId: { $not: /28-0118325063ff/ } }, { temperature: { $gt: 32 } }] } },
+        {
+            $match: {
+                $and: [
+                    {
+                        '_id.n': '270044000347363339343638'
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                yearMonthDay: {
+                    $dateToString: {
+                        format: '%Y-%m-%d',
+                        date: '$_id.d'
+                    }
+                }
+            }
+        },
         {
             $group: {
-                _id: { tick: '$groupTick', yr: '$yr', mnth: '$mnth', dy: '$dy' },
-                low: { $min: '$temperature' }, high: { $max: '$temperature' }
+                _id: '$yearMonthDay',
+                min: {
+                    $min: '$t'
+                },
+                max: {
+                    $max: '$t'
+                }
             }
-        },
-        {
-            $project: {
-                _id: '$_id',
-                yr: '$_id.yr',
-                mnth: '$_id.mnth',
-                dy: '$_id.dy',
-                high: '$high', low: '$low',
-                diff: { $subtract: ['$high', '$low'] }
-            }
-        },
-        {
-            $group: {
-                _id: { yr: '$yr', mnth: '$mnth', dy: '$dy' },
-                diff: { $max: '$diff' }
-            }
-        },
-        { $sort: { _id: -1 } }
+        }
     ];
-    hvacLog_1.HvacLog.aggregate(pipeline).then((result) => {
+    LogEntrySchema_1.LogEntry.aggregate(pipeline).then((result) => {
         res.send(result);
     }).catch((ex) => res.status(500).send(ex));
 });
