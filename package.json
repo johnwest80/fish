@@ -7,7 +7,7 @@
     "node": "8.9.3"
   },
   "scripts": {
-    "install": "cd api && npm install",
+    "install": "cd api && rm -rf node_modules && npm install",
     "start": "node api/dist/src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
