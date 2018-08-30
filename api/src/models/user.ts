@@ -2,13 +2,19 @@ import { Schema, model } from 'mongoose';
 import bcrypt = require('bcrypt');
 import { IUser } from './iuser';
 
+const UserDeviceSchema = new Schema({
+  name: { type: String, required: true, unique: true },
+  id: { type: String, required: true, unique: true }
+});
+
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
   email: String,
-  password: { type: String, required: true, unique: true }
+  password: { type: String, required: true, unique: true },
+  devices: { type: [UserDeviceSchema] }
 });
 
-UserSchema.pre('save', function(this: IUser, callback) {
+UserSchema.pre('save', function (this: IUser, callback) {
   const user = this;
 
   // Break out if the password hasn't changed
@@ -16,13 +22,13 @@ UserSchema.pre('save', function(this: IUser, callback) {
 
   // Password changed so we need to hash it
   // tslint:disable-next-line:only-arrow-functions
-  bcrypt.genSalt(5, function(err, salt) {
+  bcrypt.genSalt(5, function (err, salt) {
     if (err) {
       return callback(err);
     }
 
     // tslint:disable-next-line:only-arrow-functions
-    bcrypt.hash(user.password, salt, function(errr, hash) {
+    bcrypt.hash(user.password, salt, function (errr, hash) {
       if (errr) {
         return callback(errr);
       }
@@ -32,7 +38,7 @@ UserSchema.pre('save', function(this: IUser, callback) {
   });
 });
 
-UserSchema.methods.verifyPassword = function(password: string, cb: (err: any, isMatch?: boolean) => void) {
+UserSchema.methods.verifyPassword = function (password: string, cb: (err: any, isMatch?: boolean) => void) {
   bcrypt.compare(password, this.password, (err: any, isMatch: boolean) => {
     if (err) {
       return cb(err);

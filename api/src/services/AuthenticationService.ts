@@ -8,11 +8,11 @@ const tokenSecret = process.env.secret || secret;
 
 export class AuthenticationService {
     public static verifyToken(req: Request, res: Response, next: NextFunction) {
-        const token = req.headers['x-access-token'] as string;
+        const token = req.headers['authorization'] as string;
         if (!token) {
             return res.status(403).send({ auth: false, message: 'No token provided.' });
         }
-        jwt.verify(token, tokenSecret, (err, decoded: any) => {
+        jwt.verify(token.replace('Bearer ', ''), tokenSecret, (err, decoded: any) => {
             if (err) {
                 return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
             }
@@ -41,7 +41,7 @@ export class AuthenticationService {
                         const token = jwt.sign({ id: user._id }, tokenSecret, {
                             expiresIn: 86400 // expires in 24 hours
                         });
-                        res.status(200).send({ auth: true, token });
+                        res.status(200).send({ accessToken: token, roles: ['ADMIN'] });
                     }
                 });
             }

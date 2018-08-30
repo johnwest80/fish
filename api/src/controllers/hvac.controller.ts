@@ -1,16 +1,21 @@
-import { Request, Response, Router } from 'express';
+import { Request, Response, Router, NextFunction } from 'express';
 import { LogEntry } from '../models/LogEntrySchema';
+import { AuthenticationService } from '../services/AuthenticationService';
 
 const router: Router = Router();
 
-router.get('/history', (req: Request, res: Response) => {
+router.get('/devices', AuthenticationService.verifyToken, (req: Request, res: Response, next: NextFunction) => {
+    res.send((req as any).user.devices);
+});
+
+router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res: Response) => {
     // tslint:disable-next-line:max-line-length
     const pipeline = [
         {
             $match: {
                 $and: [
                     {
-                        '_id.n': '270044000347363339343638'
+                        '_id.n': req.params.id
                     }
                 ]
             }
