@@ -16,6 +16,11 @@ db.once('open', () => {
     const app = express();
     // The port the express app will listen on
     const port = (process.env.PORT || 3000);
+    app.use((req, res, next) => {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+        next();
+    });
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
     // Mount the WelcomeController at the /welcome route

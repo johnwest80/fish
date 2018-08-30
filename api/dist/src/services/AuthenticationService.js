@@ -13,11 +13,11 @@ const user_1 = require("../models/user");
 const tokenSecret = process.env.secret || database_1.secret;
 class AuthenticationService {
     static verifyToken(req, res, next) {
-        const token = req.headers['x-access-token'];
+        const token = req.headers['authorization'];
         if (!token) {
             return res.status(403).send({ auth: false, message: 'No token provided.' });
         }
-        jwt.verify(token, tokenSecret, (err, decoded) => {
+        jwt.verify(token.replace('Bearer ', ''), tokenSecret, (err, decoded) => {
             if (err) {
                 return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
             }
@@ -48,7 +48,7 @@ class AuthenticationService {
                         const token = jwt.sign({ id: user._id }, tokenSecret, {
                             expiresIn: 86400 // expires in 24 hours
                         });
-                        res.status(200).send({ auth: true, token });
+                        res.status(200).send({ accessToken: token, roles: ['ADMIN'] });
                     }
                 });
             }

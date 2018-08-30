@@ -2,15 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const LogEntrySchema_1 = require("../models/LogEntrySchema");
+const AuthenticationService_1 = require("../services/AuthenticationService");
 const router = express_1.Router();
-router.get('/history', (req, res) => {
+router.get('/devices', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => {
+    res.send(req.user.devices);
+});
+router.get('/history/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => {
     // tslint:disable-next-line:max-line-length
     const pipeline = [
         {
             $match: {
                 $and: [
                     {
-                        '_id.n': '270044000347363339343638'
+                        '_id.n': req.params.id
                     }
                 ]
             }
