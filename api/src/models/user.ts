@@ -3,15 +3,15 @@ import bcrypt = require('bcrypt');
 import { IUser } from './iuser';
 
 const UserDeviceSchema = new Schema({
-  name: { type: String, required: true, unique: true },
-  id: { type: String, required: true, unique: true }
+  name: { type: String, required: true, unique: false },
+  id: { type: String, required: true, unique: false }
 });
 
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
   email: String,
   password: { type: String, required: true, unique: true },
-  devices: { type: [UserDeviceSchema] }
+  devices: { type: [UserDeviceSchema], required: false }
 });
 
 UserSchema.pre('save', function (this: IUser, callback) {

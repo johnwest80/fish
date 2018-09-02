@@ -8,8 +8,24 @@ router.get('/devices', AuthenticationService.verifyToken, (req: Request, res: Re
     res.send((req as any).user.devices);
 });
 
+router.get('/lastEntry/:id', AuthenticationService.verifyToken, (req: Request, res: Response) => {
+    const pipeline = [
+        {
+            $sort: {
+                '_id.d': -1.0
+            }
+        },
+        {
+            $limit: 1.0
+        }
+    ];
+
+    LogEntry.aggregate(pipeline).then((result: any) => {
+        res.send(result);
+    }).catch((ex) => res.status(500).send(ex));
+});
+
 router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res: Response) => {
-    // tslint:disable-next-line:max-line-length
     const pipeline = [
         {
             $match: {
@@ -39,6 +55,45 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
                 max: {
                     $max: '$t'
                 }
+            }
+        },
+        {
+            $sort: {
+                _id: 1
+            }
+        }
+    ];
+
+    LogEntry.aggregate(pipeline).then((result: any) => {
+        res.send(result);
+    }).catch((ex) => res.status(500).send(ex));
+});
+
+router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken, (req: Request, res: Response) => {
+
+    const pipeline = [
+        {
+            $match: {
+                $and: [
+                    {
+                        '_id.d': {
+                            $gt: new Date(req.params.dateStart)
+                        }
+                    },
+                    {
+                        '_id.d': {
+                            $lt: new Date(req.params.dateEnd)
+                        }
+                    },
+                    {
+                        '_id.n': req.params.id
+                    }
+                ]
+            }
+        },
+        {
+            $sort: {
+                '_id.d': 1.0
             }
         }
     ];
