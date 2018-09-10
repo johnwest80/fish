@@ -4,6 +4,7 @@ exports.secret = 'jwfishing!@#$!@#$';
 exports.database = 'mongodb://127.0.0.1:27017';
 exports.dbUsername = '';
 exports.dbPassword = undefined;
+exports.dbName = 'hvac';
 // tslint:disable-next-line:max-line-length
 // export const database = 'mongodb://techcontinued.documents.azure.com:10255/?ssl=true';
 // export const dbUsername = 'techcontinued';

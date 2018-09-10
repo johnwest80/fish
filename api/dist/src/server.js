@@ -9,7 +9,7 @@ const morgan = require("morgan");
 const controllers_1 = require("./controllers");
 const security_controller_1 = require("./controllers/security.controller");
 const hvac_controller_1 = require("./controllers/hvac.controller");
-mongoose.connect(process.env.database || database_1.database, { user: process.env.dbUsername || database_1.dbUsername, pass: process.env.dbPassword || database_1.dbPassword });
+mongoose.connect(process.env.database || database_1.database, { user: process.env.dbUsername || database_1.dbUsername, pass: process.env.dbPassword || database_1.dbPassword, dbName: process.env.dbName || database_1.dbName });
 const db = mongoose.connection;
 db.once('open', () => {
     // Create a new express application instance
