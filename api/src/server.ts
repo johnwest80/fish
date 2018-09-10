@@ -1,7 +1,7 @@
 import bodyParser = require('body-parser');
 import express = require('express');
 import  mongoose = require('mongoose');
-import { database, dbUsername, dbPassword } from '../config/database';
+import { database, dbUsername, dbPassword, dbName } from '../config/database';
 import morgan = require('morgan');
 
 // Import WelcomeController from controllers entry point
@@ -10,7 +10,7 @@ import { SecurityController } from './controllers/security.controller';
 import { HvacController } from './controllers/hvac.controller';
 
 mongoose.connect(process.env.database || database,
-  { user: process.env.dbUsername || dbUsername, pass: process.env.dbPassword || dbPassword });
+  { user: process.env.dbUsername || dbUsername, pass: process.env.dbPassword || dbPassword, dbName: process.env.dbName || dbName });
 const db = mongoose.connection;
 db.once('open', () => {
   // Create a new express application instance
