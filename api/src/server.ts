@@ -13,7 +13,7 @@ mongoose.connect(process.env.database || database,
   { user: process.env.dbUsername || dbUsername, pass: process.env.dbPassword || dbPassword, dbName: process.env.dbName || dbName });
 const db = mongoose.connection;
 db.once('open', () => {
-  // Create a new express application instance
+  // Create a new express application instanceno
   const app: express.Application = express();
   // The port the express app will listen on
   const port: number = (process.env.PORT || 3000) as number;
