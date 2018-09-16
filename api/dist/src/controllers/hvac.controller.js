@@ -38,7 +38,8 @@ router.get('/history/:id', AuthenticationService_1.AuthenticationService.verifyT
                 yearMonthDay: {
                     $dateToString: {
                         format: '%Y-%m-%d',
-                        date: '$_id.d'
+                        date: '$_id.d',
+                        timezone: 'America/New_York'
                     }
                 }
             }
