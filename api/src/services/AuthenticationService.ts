@@ -14,7 +14,7 @@ export class AuthenticationService {
         }
         jwt.verify(token.replace('Bearer ', ''), tokenSecret, (err, decoded: any) => {
             if (err) {
-                return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+                return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
             }
             // if everything good, save to request for use in other routes
             User.findOne({ _id: decoded.id }, (findErr: any, user: IUser) => {
@@ -41,7 +41,7 @@ export class AuthenticationService {
                         const token = jwt.sign({ id: user._id }, tokenSecret, {
                             expiresIn: 86400 // expires in 24 hours
                         });
-                        res.status(200).send({ accessToken: token, roles: ['ADMIN'] });
+                        res.status(200).send({ accessToken: token, roles: ['ADMIN'], refreshToken: 'none' });
                     }
                 });
             }

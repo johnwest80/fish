@@ -1,5 +1,6 @@
 import { Request, Response, Router, NextFunction } from 'express';
 import { LogEntry } from '../models/LogEntrySchema';
+import { CalendarMinute } from '../models/CalendarMinuteSchema';
 import { AuthenticationService } from '../services/AuthenticationService';
 
 const router: Router = Router();
@@ -71,35 +72,82 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
 });
 
 router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken, (req: Request, res: Response) => {
-
-    const pipeline = [
-        {
-            $match: {
-                $and: [
-                    {
-                        '_id.d': {
-                            $gt: new Date(req.params.dateStart)
-                        }
-                    },
-                    {
-                        '_id.d': {
-                            $lt: new Date(req.params.dateEnd)
-                        }
-                    },
-                    {
-                        '_id.n': req.params.id
+const pipeline =     [
+    {
+        $match:
+            {
+                $and: [{
+                    _id: {
+                        $gte: new Date(req.params.dateStart)
                     }
-                ]
-            }
-        },
-        {
-            $sort: {
-                '_id.d': 1.0
-            }
-        }
-    ];
+                },
+                {
+                    _id: {
+                        $lt: new Date(req.params.dateEnd)
+                    }
+                }]
 
-    LogEntry.aggregate(pipeline).then((result: any) => {
+            }
+    },
+    {
+        $lookup: {
+            from: 'weatherentries',
+            let: { calendarDate: '$_id' },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $eq: ['$d', '$$calendarDate'] },
+                                { $eq: ['$z', '30004'] }
+                            ]
+                        }
+
+                    }
+                },
+                {
+                    $limit: 1
+                }
+            ],
+            as: 'w'
+        }
+    },
+    {
+        $lookup: {
+            from: 'logentries',
+            let: { calendarDate: '$_id' },
+            pipeline: [
+                {
+                    $match: {
+                        $expr: {
+                            $and:
+                                [
+                                    { $eq: ['$_id.d', '$$calendarDate'] },
+                                    { $eq: ['$_id.n', req.params.id] },
+                                ]
+                        }
+                    }
+                },
+                {
+                    $limit: 1
+                }
+            ],
+            as: 'l'
+        }
+    },
+    {
+        $project: {
+            '_id': 1,
+            'w.w.main.temp': 1,
+            'w.w.main.humidity': 1,
+            'l.i': 1,
+            'l.o': 1,
+            'l.t': 1
+        }
+    }
+];
+
+CalendarMinute.aggregate(pipeline).then((result: any) => {
         res.send(result);
     }).catch((ex) => res.status(500).send(ex));
 });
