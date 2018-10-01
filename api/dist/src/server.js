@@ -12,7 +12,7 @@ const hvac_controller_1 = require("./controllers/hvac.controller");
 mongoose.connect(process.env.database || database_1.database, { user: process.env.dbUsername || database_1.dbUsername, pass: process.env.dbPassword || database_1.dbPassword, dbName: process.env.dbName || database_1.dbName });
 const db = mongoose.connection;
 db.once('open', () => {
-    // Create a new express application instanceno
+    // Create a new express application instance
     const app = express();
     // The port the express app will listen on
     const port = (process.env.PORT || 3000);
