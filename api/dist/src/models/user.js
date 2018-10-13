@@ -5,8 +5,9 @@ const bcrypt = require("bcrypt");
 const UserSchema = new mongoose_1.Schema({
     _id: mongoose_1.Schema.Types.ObjectId,
     username: { type: String, required: true, unique: true },
-    email: String,
-    password: { type: String, required: true, unique: true },
+    name: String,
+    email: { type: String, unique: true, sparse: true },
+    password: { type: String, required: true },
     location: { type: mongoose_1.Schema.Types.ObjectId, ref: 'locations' }
 });
 UserSchema.pre('save', function (callback) {

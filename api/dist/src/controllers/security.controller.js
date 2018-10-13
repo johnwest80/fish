@@ -21,9 +21,6 @@ router.post('/register', (req, res, next) => {
         res.send(err);
     });
 });
-router.get('/me', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => {
-    res.send(req.user);
-});
 // Export the express.Router() instance to be used by server.ts
 exports.SecurityController = router;
 //# sourceMappingURL=security.controller.js.map
