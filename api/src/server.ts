@@ -8,6 +8,7 @@ import morgan = require('morgan');
 import { WelcomeController } from './controllers';
 import { SecurityController } from './controllers/security.controller';
 import { HvacController } from './controllers/hvac.controller';
+import { UserController } from './controllers/user.controller';
 
 mongoose.connect(process.env.database || database,
   { user: process.env.dbUsername || dbUsername, pass: process.env.dbPassword || dbPassword, dbName: process.env.dbName || dbName });
@@ -31,6 +32,7 @@ db.once('open', () => {
   app.use('/welcome', WelcomeController);
   app.use('/security', SecurityController);
   app.use('/hvac', HvacController);
+  app.use('/user', UserController);
 
   app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (error && error.message) {

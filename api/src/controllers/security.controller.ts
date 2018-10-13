@@ -16,9 +16,5 @@ router.post('/register', (req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-router.get('/me', AuthenticationService.verifyToken, (req: Request, res: Response, next: NextFunction) => {
-  res.send((req as any).user);
-});
-
 // Export the express.Router() instance to be used by server.ts
 export const SecurityController: Router = router;

@@ -5,8 +5,9 @@ import { IUser } from './iuser';
 const UserSchema = new Schema({
   _id: Schema.Types.ObjectId,
   username: { type: String, required: true, unique: true },
-  email: String,
-  password: { type: String, required: true, unique: true },
+  name: String,
+  email: { type: String, unique: true, sparse: true },
+  password: { type: String, required: true },
   location: { type: Schema.Types.ObjectId, ref: 'locations' }
 });
 

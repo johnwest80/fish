@@ -8,7 +8,6 @@ export interface IAuthenticatedRequest extends Request {
     user: IUser;
 }
 
-
 const tokenSecret = process.env.secret || secret;
 
 export class AuthenticationService {
