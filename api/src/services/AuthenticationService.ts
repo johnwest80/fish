@@ -4,10 +4,15 @@ import { secret } from '../../config/database';
 import { IUser } from '../models/iuser';
 import { User } from '../models/user';
 
+export interface IAuthenticatedRequest extends Request {
+    user: IUser;
+}
+
+
 const tokenSecret = process.env.secret || secret;
 
 export class AuthenticationService {
-    public static verifyToken(req: Request, res: Response, next: NextFunction) {
+    public static verifyToken(req: IAuthenticatedRequest, res: Response, next: NextFunction) {
         const token = req.headers['authorization'] as string;
         if (!token) {
             return res.status(403).send({ auth: false, message: 'No token provided.' });
@@ -21,7 +26,7 @@ export class AuthenticationService {
                 if (findErr) {
                     return res.status(401).send('User information not found.');
                 }
-                (req as any).user = user;
+                req.user = user;
                 next();
             });
         });

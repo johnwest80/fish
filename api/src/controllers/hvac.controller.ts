@@ -1,12 +1,26 @@
 import { Request, Response, Router, NextFunction } from 'express';
 import { LogEntry } from '../models/LogEntrySchema';
+import { Location } from '../models/LocationSchema';
 import { CalendarMinute } from '../models/CalendarMinuteSchema';
-import { AuthenticationService } from '../services/AuthenticationService';
+import { AuthenticationService, IAuthenticatedRequest } from '../services/AuthenticationService';
+import { ObjectId } from 'bson';
+import { IUser } from '../models/iuser';
 
 const router: Router = Router();
 
-router.get('/devices', AuthenticationService.verifyToken, (req: Request, res: Response, next: NextFunction) => {
-    res.send((req as any).user.devices);
+router.get('/locations', AuthenticationService.verifyToken, async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
+    try {
+        const result = await Location.find({
+            "users._id": req.user._id
+        }, {
+                "name": 1,
+                "devices": 1
+            });
+
+        res.send(result);
+    } catch (ex) {
+        res.status(500).send(ex);
+    }
 });
 
 router.get('/lastEntry/:id', AuthenticationService.verifyToken, (req: Request, res: Response) => {
@@ -72,9 +86,9 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
 });
 
 router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken, (req: Request, res: Response) => {
-const pipeline =     [
-    {
-        $match:
+    const pipeline = [
+        {
+            $match:
             {
                 $and: [{
                     _id: {
@@ -88,66 +102,66 @@ const pipeline =     [
                 }]
 
             }
-    },
-    {
-        $lookup: {
-            from: 'weatherentries',
-            let: { calendarDate: '$_id' },
-            pipeline: [
-                {
-                    $match: {
-                        $expr: {
-                            $and: [
-                                { $eq: ['$d', '$$calendarDate'] },
-                                { $eq: ['$z', '30004'] }
-                            ]
-                        }
-
-                    }
-                },
-                {
-                    $limit: 1
-                }
-            ],
-            as: 'w'
-        }
-    },
-    {
-        $lookup: {
-            from: 'logentries',
-            let: { calendarDate: '$_id' },
-            pipeline: [
-                {
-                    $match: {
-                        $expr: {
-                            $and:
-                                [
-                                    { $eq: ['$_id.d', '$$calendarDate'] },
-                                    { $eq: ['$_id.n', req.params.id] },
+        },
+        {
+            $lookup: {
+                from: 'weatherentries',
+                let: { calendarDate: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ['$d', '$$calendarDate'] },
+                                    { $eq: ['$z', '30004'] }
                                 ]
-                        }
-                    }
-                },
-                {
-                    $limit: 1
-                }
-            ],
-            as: 'l'
-        }
-    },
-    {
-        $project: {
-            '_id': 1,
-            'w.w.main.temp': 1,
-            'w.w.main.humidity': 1,
-            'l.i': 1,
-            'l.o': 1,
-            'l.t': 1
-        }
-    }
-];
+                            }
 
-CalendarMinute.aggregate(pipeline).then((result: any) => {
+                        }
+                    },
+                    {
+                        $limit: 1
+                    }
+                ],
+                as: 'w'
+            }
+        },
+        {
+            $lookup: {
+                from: 'logentries',
+                let: { calendarDate: '$_id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and:
+                                    [
+                                        { $eq: ['$_id.d', '$$calendarDate'] },
+                                        { $eq: ['$_id.n', req.params.id] },
+                                    ]
+                            }
+                        }
+                    },
+                    {
+                        $limit: 1
+                    }
+                ],
+                as: 'l'
+            }
+        },
+        {
+            $project: {
+                '_id': 1,
+                'w.w.main.temp': 1,
+                'w.w.main.humidity': 1,
+                'l.i': 1,
+                'l.o': 1,
+                'l.t': 1
+            }
+        }
+    ];
+
+    CalendarMinute.aggregate(pipeline).then((result: any) => {
         res.send(result);
     }).catch((ex) => res.status(500).send(ex));
 });

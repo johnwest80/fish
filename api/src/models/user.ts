@@ -2,16 +2,12 @@ import { Schema, model } from 'mongoose';
 import bcrypt = require('bcrypt');
 import { IUser } from './iuser';
 
-const UserDeviceSchema = new Schema({
-  name: { type: String, required: true, unique: false },
-  id: { type: String, required: true, unique: false }
-});
-
 const UserSchema = new Schema({
+  _id: Schema.Types.ObjectId,
   username: { type: String, required: true, unique: true },
   email: String,
   password: { type: String, required: true, unique: true },
-  devices: { type: [UserDeviceSchema], required: false }
+  location: { type: Schema.Types.ObjectId, ref: 'locations' }
 });
 
 UserSchema.pre('save', function (this: IUser, callback) {
