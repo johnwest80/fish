@@ -2,15 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const bcrypt = require("bcrypt");
-const UserDeviceSchema = new mongoose_1.Schema({
-    name: { type: String, required: true, unique: false },
-    id: { type: String, required: true, unique: false }
-});
 const UserSchema = new mongoose_1.Schema({
+    _id: mongoose_1.Schema.Types.ObjectId,
     username: { type: String, required: true, unique: true },
     email: String,
     password: { type: String, required: true, unique: true },
-    devices: { type: [UserDeviceSchema], required: false }
+    location: { type: mongoose_1.Schema.Types.ObjectId, ref: 'locations' }
 });
 UserSchema.pre('save', function (callback) {
     const user = this;
