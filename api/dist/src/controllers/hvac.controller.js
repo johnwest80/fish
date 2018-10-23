@@ -153,7 +153,8 @@ router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService_1.Authentic
                 'w.w.main.humidity': 1,
                 'l.i': 1,
                 'l.o': 1,
-                'l.t': 1
+                'l.t': 1,
+                'l.w': 1
             }
         }
     ];
