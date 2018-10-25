@@ -9,14 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const user_1 = require("../models/user");
+const UserSchema_1 = require("../models/UserSchema");
 const AuthenticationService_1 = require("../services/AuthenticationService");
 const router = express_1.Router();
 router.post('/login', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     return AuthenticationService_1.AuthenticationService.login(req, res, req.body.username, req.body.password);
 }));
 router.post('/register', (req, res, next) => {
-    const user = new user_1.User({ username: req.body.username, password: req.body.password });
+    const user = new UserSchema_1.User({ username: req.body.username, password: req.body.password });
     user.save((err) => {
         res.send(err);
     });

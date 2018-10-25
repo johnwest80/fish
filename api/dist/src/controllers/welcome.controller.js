@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const user_1 = require("../models/user");
+const UserSchema_1 = require("../models/UserSchema");
 // Assign router to the express.Router() instance
 const router = express_1.Router();
 // The / here corresponds to the route that the WelcomeController
@@ -12,12 +12,12 @@ router.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 router.get('/getall', (req, res) => {
-    user_1.User.find().then((users) => {
+    UserSchema_1.User.find().then((users) => {
         res.send(users);
     });
 });
 router.get('/getone', (req, res) => {
-    user_1.User.find().then((users) => {
+    UserSchema_1.User.find().then((users) => {
         return users[3].verifyPassword('abcde', (err, isMatch) => {
             res.send({ pwd: users[0].password, err, isMatch });
         });

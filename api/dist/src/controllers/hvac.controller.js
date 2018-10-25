@@ -43,12 +43,47 @@ router.post('/locationEdit/:id', AuthenticationService_1.AuthenticationService.v
     const hvacService = new hvac_service_1.HvacService();
     try {
         const location = yield hvacService.getLocationForEdit(req.user._id, req.params.id);
-        if (location === null) {
-            res.status(404);
+        if (location == null) {
+            return res.status(404).send();
         }
         location.name = req.body.name;
-        location.save();
+        yield location.save();
         res.send();
+    }
+    catch (ex) {
+        res.status(500).send(ex);
+    }
+}));
+router.get('/deviceEdit/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    try {
+        const result = yield hvacService.getDeviceForEdit(req.user._id, req.params.id);
+        res.send(result);
+    }
+    catch (ex) {
+        res.status(500).send(ex);
+    }
+}));
+router.post('/deviceEdit/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    try {
+        const locationInDb = yield hvacService.getLocationForEditByDeviceId(req.user._id, req.params.id);
+        if (locationInDb === null) {
+            return res.status(404).send();
+        }
+        const deviceInDb = locationInDb.devices.find((dev) => dev.id === req.params.id);
+        if (deviceInDb === undefined) {
+            return res.status(404).send();
+        }
+        const postedDevice = req.body;
+        if (postedDevice === undefined) {
+            return res.status(404).send();
+        }
+        deviceInDb.name = postedDevice.name;
+        deviceInDb.minHeatRise = postedDevice.minHeatRise;
+        deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+        yield locationInDb.save();
+        return res.send();
     }
     catch (ex) {
         res.status(500).send(ex);

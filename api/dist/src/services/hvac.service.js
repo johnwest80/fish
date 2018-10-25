@@ -18,6 +18,27 @@ class HvacService {
             });
         });
     }
+    getLocationForEditByDeviceId(userId, deviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const location = yield LocationSchema_1.Location.findOne({
+                "users._id": userId,
+                "devices.id": deviceId
+            });
+            if (!location) {
+                throw new Error('Location not found');
+            }
+            return location;
+        });
+    }
+    getDeviceForEdit(userId, deviceId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const device = (yield this.getLocationForEditByDeviceId(userId, deviceId)).devices.find((d) => d.id === deviceId);
+            if (!device) {
+                throw new Error('Device not found');
+            }
+            return device;
+        });
+    }
 }
 exports.HvacService = HvacService;
 //# sourceMappingURL=hvac.service.js.map

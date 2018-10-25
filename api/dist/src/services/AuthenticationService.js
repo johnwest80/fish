@@ -9,7 +9,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const jwt = __importStar(require("jsonwebtoken"));
 const database_1 = require("../../config/database");
-const user_1 = require("../models/user");
+const UserSchema_1 = require("../models/UserSchema");
 const tokenSecret = process.env.secret || database_1.secret;
 class AuthenticationService {
     static verifyToken(req, res, next) {
@@ -22,7 +22,7 @@ class AuthenticationService {
                 return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
             }
             // if everything good, save to request for use in other routes
-            user_1.User.findOne({ _id: decoded.id }, (findErr, user) => {
+            UserSchema_1.User.findOne({ _id: decoded.id }, (findErr, user) => {
                 if (findErr) {
                     return res.status(401).send('User information not found.');
                 }
@@ -32,7 +32,7 @@ class AuthenticationService {
         });
     }
     static login(req, res, username, password) {
-        user_1.User.findOne({ username }, (err, user) => {
+        UserSchema_1.User.findOne({ username }, (err, user) => {
             if (err) {
                 res.status(500).send('Error on the server.');
             }
