@@ -13,6 +13,7 @@ const LogEntrySchema_1 = require("../models/LogEntrySchema");
 const LocationSchema_1 = require("../models/LocationSchema");
 const CalendarMinuteSchema_1 = require("../models/CalendarMinuteSchema");
 const AuthenticationService_1 = require("../services/AuthenticationService");
+const hvac_service_1 = require("../services/hvac.service");
 const router = express_1.Router();
 router.get('/locations', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
@@ -23,6 +24,31 @@ router.get('/locations', AuthenticationService_1.AuthenticationService.verifyTok
             "devices": 1
         });
         res.send(result);
+    }
+    catch (ex) {
+        res.status(500).send(ex);
+    }
+}));
+router.get('/locationEdit/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    try {
+        const result = yield hvacService.getLocationForEdit(req.user._id, req.params.id);
+        res.send(result);
+    }
+    catch (ex) {
+        res.status(500).send(ex);
+    }
+}));
+router.post('/locationEdit/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    try {
+        const location = yield hvacService.getLocationForEdit(req.user._id, req.params.id);
+        if (location === null) {
+            res.status(404);
+        }
+        location.name = req.body.name;
+        location.save();
+        res.send();
     }
     catch (ex) {
         res.status(500).send(ex);

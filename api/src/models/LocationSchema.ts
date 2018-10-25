@@ -3,8 +3,9 @@ import { ILocation } from './ILocation';
 import { ObjectID } from 'bson';
 
 const UserDeviceSchema = new Schema({
-    _id: Schema.Types.ObjectId,
     name: { type: String, required: true, unique: false },
+    minHeatRise: { type: Number },
+    maxHeatRise: { type: Number },
     id: { type: String, required: true, unique: false }
 });
 
@@ -13,7 +14,7 @@ const LocationSchema = new Schema({
     name: { type: String, required: true },
     timezone: { type: String, required: true },
     devices: { type: [UserDeviceSchema], required: false },
-    users:  [{ type: Schema.Types.ObjectId, ref: 'users' }]
+    users:  [{ _id: { type: Schema.Types.ObjectId, ref: 'User' } }]
 });
 
-export const Location = model<ILocation>('locations', LocationSchema);
+export const Location = model<ILocation>('Location', LocationSchema);

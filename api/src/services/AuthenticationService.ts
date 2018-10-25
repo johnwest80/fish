@@ -2,7 +2,7 @@ import { Response, Request, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { secret } from '../../config/database';
 import { IUser } from '../models/iuser';
-import { User } from '../models/user';
+import { User } from '../models/UserSchema';
 
 export interface IAuthenticatedRequest extends Request {
     user: IUser;

@@ -8,7 +8,7 @@ const UserSchema = new Schema({
   name: String,
   email: { type: String, unique: true, sparse: true },
   password: { type: String, required: true },
-  location: { type: Schema.Types.ObjectId, ref: 'locations' }
+  location: { type: Schema.Types.ObjectId, ref: 'Location' }
 });
 
 UserSchema.pre('save', function (this: IUser, callback) {

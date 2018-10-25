@@ -11,4 +11,4 @@ const LogEntrySchema = new Schema({
     t: { type: Number, required: true }
 });
 
-export const LogEntry = model<ILogEntry>('logEntries', LogEntrySchema);
+export const LogEntry = model<ILogEntry>('LogEntry', LogEntrySchema);

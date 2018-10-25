@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { IUser } from '../models/iuser';
-import { User } from '../models/user';
+import { User } from '../models/UserSchema';
 
 // Assign router to the express.Router() instance
 const router: Router = Router();
