@@ -46,6 +46,7 @@ router.post('/locationEdit/:id', AuthenticationService.verifyToken,
                 return res.status(404).send();
             }
             location.name = req.body.name;
+            location.zipCode = req.body.zipCode;
             await location.save();
             res.send();
         } catch (ex) {

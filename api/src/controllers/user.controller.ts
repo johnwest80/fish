@@ -11,12 +11,28 @@ interface IMe {
     email: string;
 }
 
+interface IPostMe {
+    name: string;
+    password: string;
+    confirmPassword: string;
+}
+
 router.get('/me', AuthenticationService.verifyToken, (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
     res.send({ username: req.user.username, email: req.user.email, name: req.user.name } as IMe);
 });
 
 router.post('/me', AuthenticationService.verifyToken, (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
+    const postedMe = req.body as IPostMe;
+
     req.user.name = req.body.name;
+    if (postedMe.password) {
+        if (postedMe.password !== postedMe.confirmPassword) {
+            throw new Error('Passwords don\' match');
+        } else {
+            req.user.password = postedMe.password;
+        }
+    }
+
     req.user.save();
     res.send();
 });

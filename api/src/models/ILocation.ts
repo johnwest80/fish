@@ -7,4 +7,5 @@ export interface ILocation extends mongoose.Document {
     name: string;
     timezone: string;
     devices: [IDevice];
+    zipCode: string;
 }

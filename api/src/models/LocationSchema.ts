@@ -13,6 +13,7 @@ const LocationSchema = new Schema({
     _id: Schema.Types.ObjectId,
     name: { type: String, required: true },
     timezone: { type: String, required: true },
+    zipCode: { type: String, required: true, unique: false },
     devices: { type: [UserDeviceSchema], required: false },
     users:  [{ _id: { type: Schema.Types.ObjectId, ref: 'User' } }]
 });
