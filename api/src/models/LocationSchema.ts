@@ -1,8 +1,9 @@
 import { Schema, model } from 'mongoose';
 import { ILocation } from './ILocation';
 import { ObjectID } from 'bson';
+import { IDevice } from './IDevice';
 
-const UserDeviceSchema = new Schema({
+export const UserDeviceSchema = new Schema({
     name: { type: String, required: true, unique: false },
     minHeatRise: { type: Number },
     maxHeatRise: { type: Number },

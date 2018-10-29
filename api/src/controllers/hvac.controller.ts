@@ -1,11 +1,13 @@
 import { Request, Response, Router, NextFunction } from 'express';
 import { LogEntry } from '../models/LogEntrySchema';
-import { Location } from '../models/LocationSchema';
+import { Location, UserDeviceSchema } from '../models/LocationSchema';
 import { CalendarMinute } from '../models/CalendarMinuteSchema';
 import { AuthenticationService, IAuthenticatedRequest } from '../services/AuthenticationService';
 import { HvacService } from '../services/hvac.service';
 import { ILocation } from '../models/ILocation';
 import { IDevice } from '../models/IDevice';
+import { ObjectId } from 'bson';
+import { IUser } from '../models/iuser';
 
 const router: Router = Router();
 
@@ -36,12 +38,23 @@ router.get('/locationEdit/:id', AuthenticationService.verifyToken,
         }
     });
 
-router.post('/locationEdit/:id', AuthenticationService.verifyToken,
+router.put('/locationEdit/:id', AuthenticationService.verifyToken,
     async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
         const hvacService = new HvacService();
-
+        let location: ILocation;
         try {
-            const location = await hvacService.getLocationForEdit(req.user._id, req.params.id) as ILocation;
+            if (req.params.id === 'null') {
+                location = new Location();
+                location._id = new ObjectId();
+                location.timezone = 'America/New_York';
+                location.users = [
+                    {
+                        _id: req.user._id
+                    } as IUser
+                ];
+            } else {
+                location = await hvacService.getLocationForEdit(req.user._id, req.params.id) as ILocation;
+            }
             if (location == null) {
                 return res.status(404).send();
             }
@@ -66,16 +79,17 @@ router.get('/deviceEdit/:id', AuthenticationService.verifyToken,
         }
     });
 
-router.post('/deviceEdit/:id', AuthenticationService.verifyToken,
+router.put('/deviceEdit/:deviceId', AuthenticationService.verifyToken,
     async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
         const hvacService = new HvacService();
 
         try {
-            const locationInDb = await hvacService.getLocationForEditByDeviceId(req.user._id, req.params.id) as ILocation;
+            const locationInDb = await hvacService.getLocationForEditByDeviceId(req.user._id, req.params.deviceId) as ILocation;
             if (locationInDb === null) {
                 return res.status(404).send();
             }
-            const deviceInDb = locationInDb.devices.find((dev) => dev.id === req.params.id);
+
+            const deviceInDb = locationInDb.devices.find((dev) => dev.id === req.params.deviceId);
             if (deviceInDb === undefined) {
                 return res.status(404).send();
             }
@@ -94,6 +108,43 @@ router.post('/deviceEdit/:id', AuthenticationService.verifyToken,
             return res.send();
         } catch (ex) {
             res.status(500).send(ex);
+        }
+    });
+
+router.post('/deviceEdit/:locationId', AuthenticationService.verifyToken,
+    async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
+        const hvacService = new HvacService();
+
+        try {
+            const locationInDb = await hvacService.getLocationForEdit(req.user._id, req.params.locationId) as ILocation;
+            if (locationInDb === null) {
+                return res.status(404).send();
+            }
+
+            const postedDevice = req.body as IDevice;
+            const deviceInDb = {} as IDevice;
+            deviceInDb.name = postedDevice.name;
+            deviceInDb.minHeatRise = postedDevice.minHeatRise;
+            deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+
+            if (locationInDb.devices.find((dev) => dev.name.toUpperCase() === postedDevice.name.toUpperCase())) {
+                throw new Error('Must have unique name');
+            }
+
+            const deviceId = await hvacService.getDeviceIdAwaitingAdd(req.user.id, postedDevice.id);
+
+            if (!deviceId) {
+                throw new Error('Device id not found');
+            } else {
+                deviceInDb.id = deviceId;
+            }
+
+            locationInDb.devices.push(deviceInDb);
+            await locationInDb.save();
+
+            return res.send();
+        } catch (ex) {
+            return next(ex);
         }
     });
 
