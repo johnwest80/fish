@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const UserDeviceSchema = new mongoose_1.Schema({
+exports.UserDeviceSchema = new mongoose_1.Schema({
     name: { type: String, required: true, unique: false },
     minHeatRise: { type: Number },
     maxHeatRise: { type: Number },
@@ -11,7 +11,8 @@ const LocationSchema = new mongoose_1.Schema({
     _id: mongoose_1.Schema.Types.ObjectId,
     name: { type: String, required: true },
     timezone: { type: String, required: true },
-    devices: { type: [UserDeviceSchema], required: false },
+    zipCode: { type: String, required: true, unique: false },
+    devices: { type: [exports.UserDeviceSchema], required: false },
     users: [{ _id: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' } }]
 });
 exports.Location = mongoose_1.model('Location', LocationSchema);

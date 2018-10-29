@@ -14,6 +14,7 @@ const LocationSchema_1 = require("../models/LocationSchema");
 const CalendarMinuteSchema_1 = require("../models/CalendarMinuteSchema");
 const AuthenticationService_1 = require("../services/AuthenticationService");
 const hvac_service_1 = require("../services/hvac.service");
+const bson_1 = require("bson");
 const router = express_1.Router();
 router.get('/locations', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
@@ -39,14 +40,28 @@ router.get('/locationEdit/:id', AuthenticationService_1.AuthenticationService.ve
         res.status(500).send(ex);
     }
 }));
-router.post('/locationEdit/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.put('/locationEdit/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     const hvacService = new hvac_service_1.HvacService();
+    let location;
     try {
-        const location = yield hvacService.getLocationForEdit(req.user._id, req.params.id);
+        if (req.params.id === 'null') {
+            location = new LocationSchema_1.Location();
+            location._id = new bson_1.ObjectId();
+            location.timezone = 'America/New_York';
+            location.users = [
+                {
+                    _id: req.user._id
+                }
+            ];
+        }
+        else {
+            location = (yield hvacService.getLocationForEdit(req.user._id, req.params.id));
+        }
         if (location == null) {
             return res.status(404).send();
         }
         location.name = req.body.name;
+        location.zipCode = req.body.zipCode;
         yield location.save();
         res.send();
     }
@@ -64,14 +79,14 @@ router.get('/deviceEdit/:id', AuthenticationService_1.AuthenticationService.veri
         res.status(500).send(ex);
     }
 }));
-router.post('/deviceEdit/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.put('/deviceEdit/:deviceId', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     const hvacService = new hvac_service_1.HvacService();
     try {
-        const locationInDb = yield hvacService.getLocationForEditByDeviceId(req.user._id, req.params.id);
+        const locationInDb = yield hvacService.getLocationForEditByDeviceId(req.user._id, req.params.deviceId);
         if (locationInDb === null) {
             return res.status(404).send();
         }
-        const deviceInDb = locationInDb.devices.find((dev) => dev.id === req.params.id);
+        const deviceInDb = locationInDb.devices.find((dev) => dev.id === req.params.deviceId);
         if (deviceInDb === undefined) {
             return res.status(404).send();
         }
@@ -87,6 +102,36 @@ router.post('/deviceEdit/:id', AuthenticationService_1.AuthenticationService.ver
     }
     catch (ex) {
         res.status(500).send(ex);
+    }
+}));
+router.post('/deviceEdit/:locationId', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    try {
+        const locationInDb = yield hvacService.getLocationForEdit(req.user._id, req.params.locationId);
+        if (locationInDb === null) {
+            return res.status(404).send();
+        }
+        const postedDevice = req.body;
+        const deviceInDb = {};
+        deviceInDb.name = postedDevice.name;
+        deviceInDb.minHeatRise = postedDevice.minHeatRise;
+        deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+        if (locationInDb.devices.find((dev) => dev.name.toUpperCase() === postedDevice.name.toUpperCase())) {
+            throw new Error('Must have unique name');
+        }
+        const deviceId = yield hvacService.getDeviceIdAwaitingAdd(req.user.id, postedDevice.id);
+        if (!deviceId) {
+            throw new Error('Device id not found');
+        }
+        else {
+            deviceInDb.id = deviceId;
+        }
+        locationInDb.devices.push(deviceInDb);
+        yield locationInDb.save();
+        return res.send();
+    }
+    catch (ex) {
+        return next(ex);
     }
 }));
 router.get('/lastEntry/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => {

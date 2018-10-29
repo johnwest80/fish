@@ -7,7 +7,16 @@ router.get('/me', AuthenticationService_1.AuthenticationService.verifyToken, (re
     res.send({ username: req.user.username, email: req.user.email, name: req.user.name });
 });
 router.post('/me', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => {
+    const postedMe = req.body;
     req.user.name = req.body.name;
+    if (postedMe.password) {
+        if (postedMe.password !== postedMe.confirmPassword) {
+            throw new Error('Passwords don\' match');
+        }
+        else {
+            req.user.password = postedMe.password;
+        }
+    }
     req.user.save();
     res.send();
 });
