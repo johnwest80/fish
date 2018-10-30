@@ -10,4 +10,5 @@ export interface ILocation extends mongoose.Document {
     devices: [IDevice];
     zipCode: string;
     users: [IUser];
+    disabled: boolean;
 }

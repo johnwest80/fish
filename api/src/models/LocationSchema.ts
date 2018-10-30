@@ -7,7 +7,9 @@ export const UserDeviceSchema = new Schema({
     name: { type: String, required: true, unique: false },
     minHeatRise: { type: Number },
     maxHeatRise: { type: Number },
-    id: { type: String, required: true, unique: false }
+    id: { type: String, required: true, unique: false },
+    disabled: { type: Boolean, required: true, default: false },
+    reversed: { type: Boolean, required: true, default: false }
 });
 
 const LocationSchema = new Schema({
@@ -16,7 +18,8 @@ const LocationSchema = new Schema({
     timezone: { type: String, required: true },
     zipCode: { type: String, required: true, unique: false },
     devices: { type: [UserDeviceSchema], required: false },
-    users:  [{ _id: { type: Schema.Types.ObjectId, ref: 'User' } }]
+    users:  [{ _id: { type: Schema.Types.ObjectId, ref: 'User' } }],
+    disabled: { type: Boolean, required: true, default: false }
 });
 
 export const Location = model<ILocation>('Location', LocationSchema);

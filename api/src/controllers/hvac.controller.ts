@@ -14,7 +14,8 @@ const router: Router = Router();
 router.get('/locations', AuthenticationService.verifyToken, async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
         const result = await Location.find({
-            "users._id": req.user._id
+            "users._id": req.user._id,
+            "disabled": false
         }, {
                 "name": 1,
                 "devices": 1
@@ -60,6 +61,7 @@ router.put('/locationEdit/:id', AuthenticationService.verifyToken,
             }
             location.name = req.body.name;
             location.zipCode = req.body.zipCode;
+            location.disabled = req.body.disabled;
             await location.save();
             res.send();
         } catch (ex) {
@@ -99,9 +101,7 @@ router.put('/deviceEdit/:deviceId', AuthenticationService.verifyToken,
                 return res.status(404).send();
             }
 
-            deviceInDb.name = postedDevice.name;
-            deviceInDb.minHeatRise = postedDevice.minHeatRise;
-            deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+            hvacService.updateDeviceForSave(postedDevice, deviceInDb);
 
             await locationInDb.save();
 
@@ -123,9 +123,7 @@ router.post('/deviceEdit/:locationId', AuthenticationService.verifyToken,
 
             const postedDevice = req.body as IDevice;
             const deviceInDb = {} as IDevice;
-            deviceInDb.name = postedDevice.name;
-            deviceInDb.minHeatRise = postedDevice.minHeatRise;
-            deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+            hvacService.updateDeviceForSave(postedDevice, deviceInDb);
 
             if (locationInDb.devices.find((dev) => dev.name.toUpperCase() === postedDevice.name.toUpperCase())) {
                 throw new Error('Must have unique name');

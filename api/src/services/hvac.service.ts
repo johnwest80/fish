@@ -79,4 +79,12 @@ export class HvacService {
         }
         return ((array[0] as any).le as ILogEntry)._id.n;
     }
+
+    public updateDeviceForSave(postedDevice: IDevice, deviceInDb: IDevice) {
+        deviceInDb.name = postedDevice.name;
+        deviceInDb.minHeatRise = postedDevice.minHeatRise;
+        deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+        deviceInDb.disabled = postedDevice.disabled;
+        deviceInDb.reversed = postedDevice.reversed;
+    }
 }
