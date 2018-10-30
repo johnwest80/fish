@@ -89,6 +89,13 @@ class HvacService {
             return array[0].le._id.n;
         });
     }
+    updateDeviceForSave(postedDevice, deviceInDb) {
+        deviceInDb.name = postedDevice.name;
+        deviceInDb.minHeatRise = postedDevice.minHeatRise;
+        deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+        deviceInDb.disabled = postedDevice.disabled;
+        deviceInDb.reversed = postedDevice.reversed;
+    }
 }
 exports.HvacService = HvacService;
 //# sourceMappingURL=hvac.service.js.map

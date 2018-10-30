@@ -19,7 +19,8 @@ const router = express_1.Router();
 router.get('/locations', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
         const result = yield LocationSchema_1.Location.find({
-            "users._id": req.user._id
+            "users._id": req.user._id,
+            "disabled": false
         }, {
             "name": 1,
             "devices": 1
@@ -62,6 +63,7 @@ router.put('/locationEdit/:id', AuthenticationService_1.AuthenticationService.ve
         }
         location.name = req.body.name;
         location.zipCode = req.body.zipCode;
+        location.disabled = req.body.disabled;
         yield location.save();
         res.send();
     }
@@ -94,9 +96,7 @@ router.put('/deviceEdit/:deviceId', AuthenticationService_1.AuthenticationServic
         if (postedDevice === undefined) {
             return res.status(404).send();
         }
-        deviceInDb.name = postedDevice.name;
-        deviceInDb.minHeatRise = postedDevice.minHeatRise;
-        deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+        hvacService.updateDeviceForSave(postedDevice, deviceInDb);
         yield locationInDb.save();
         return res.send();
     }
@@ -113,9 +113,7 @@ router.post('/deviceEdit/:locationId', AuthenticationService_1.AuthenticationSer
         }
         const postedDevice = req.body;
         const deviceInDb = {};
-        deviceInDb.name = postedDevice.name;
-        deviceInDb.minHeatRise = postedDevice.minHeatRise;
-        deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
+        hvacService.updateDeviceForSave(postedDevice, deviceInDb);
         if (locationInDb.devices.find((dev) => dev.name.toUpperCase() === postedDevice.name.toUpperCase())) {
             throw new Error('Must have unique name');
         }
