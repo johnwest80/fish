@@ -49,9 +49,7 @@ router.put('/locationEdit/:id', AuthenticationService.verifyToken,
                 location._id = new ObjectId();
                 location.timezone = 'America/New_York';
                 location.users = [
-                    {
-                        _id: req.user._id
-                    } as IUser
+                    { _id: req.user._id }
                 ];
             } else {
                 location = await hvacService.getLocationForEdit(req.user._id, req.params.id) as ILocation;

@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import { ObjectId } from 'bson';
+import { ObjectId, ObjectID } from 'bson';
 import { IDevice } from './IDevice';
 import { IUser } from './iuser';
 
@@ -9,6 +9,6 @@ export interface ILocation extends mongoose.Document {
     timezone: string;
     devices: [IDevice];
     zipCode: string;
-    users: [IUser];
+    users: [{ _id: ObjectId }];
     disabled: boolean;
 }
