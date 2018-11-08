@@ -13,7 +13,7 @@ export interface ISecurityRegisterPost {
         locationName: string;
         timezone: string;
         zipCode: string;
-    }
+    };
 }
 
 export interface IValidationError {
