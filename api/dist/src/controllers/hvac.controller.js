@@ -133,6 +133,11 @@ router.post('/deviceEdit/:locationId', AuthenticationService_1.AuthenticationSer
 router.get('/lastEntry/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => {
     const pipeline = [
         {
+            $match: {
+                "_id.n": req.params.id
+            }
+        },
+        {
             $sort: {
                 '_id.d': -1.0
             }
