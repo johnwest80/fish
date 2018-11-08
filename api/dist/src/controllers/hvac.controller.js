@@ -50,9 +50,7 @@ router.put('/locationEdit/:id', AuthenticationService_1.AuthenticationService.ve
             location._id = new bson_1.ObjectId();
             location.timezone = 'America/New_York';
             location.users = [
-                {
-                    _id: req.user._id
-                }
+                { _id: req.user._id }
             ];
         }
         else {
