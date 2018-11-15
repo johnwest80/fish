@@ -198,7 +198,8 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
                 },
                 max: {
                     $max: '$t'
-                }
+                },
+                numRuns: { "$sum": { "$cond": [{ "$eq": ["$start", true ] }, 1, 0] } }
             }
         },
         {
