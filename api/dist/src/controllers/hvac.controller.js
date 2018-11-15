@@ -182,7 +182,8 @@ router.get('/history/:id', AuthenticationService_1.AuthenticationService.verifyT
                 },
                 max: {
                     $max: '$t'
-                }
+                },
+                numRuns: { "$sum": { "$cond": [{ "$eq": ["$start", true] }, 1, 0] } }
             }
         },
         {
