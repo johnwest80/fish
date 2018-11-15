@@ -18,7 +18,9 @@ router.get('/locations', AuthenticationService.verifyToken, async (req: IAuthent
             "disabled": false
         }, {
                 "name": 1,
-                "devices": 1
+                "devices": 1,
+                "disabled": 1,
+                "zipCode": 1
             });
 
         res.send(result);
@@ -162,7 +164,7 @@ router.get('/lastEntry/:id', AuthenticationService.verifyToken, (req: Request, r
     ];
 
     LogEntry.aggregate(pipeline).then((result: any) => {
-        res.send(result);
+        res.send(result && result.length > 0 ? result[0] : null);
     }).catch((ex) => res.status(500).send(ex));
 });
 
@@ -283,7 +285,9 @@ router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken
                 'l.i': 1,
                 'l.o': 1,
                 'l.t': 1,
-                'l.w': 1
+                'l.w': 1,
+                'l.start': 1,
+                'l.end': 1
             }
         }
     ];
