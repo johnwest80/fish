@@ -8,7 +8,12 @@ const LogEntrySchema = new mongoose_1.Schema({
     },
     i: { type: Number, required: true },
     o: { type: Number, required: true },
-    t: { type: Number, required: true }
+    t: { type: Number, required: true },
+    w: { type: Number },
+    start: { type: Boolean },
+    end: { type: Boolean },
+    startUnsure: { type: Boolean },
+    endUnsure: { type: Boolean },
 });
 exports.LogEntry = mongoose_1.model('LogEntry', LogEntrySchema);
 //# sourceMappingURL=LogEntrySchema.js.map

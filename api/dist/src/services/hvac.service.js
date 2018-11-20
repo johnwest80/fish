@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const bson_1 = require("bson");
 const LocationSchema_1 = require("../models/LocationSchema");
-const LogEntrySchema_1 = require("../models/LogEntrySchema");
+const UnassignedDeviceSchema_1 = require("../models/UnassignedDeviceSchema");
 class HvacService {
     getLocationForEdit(userId, locationId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -41,60 +41,30 @@ class HvacService {
             return device;
         });
     }
-    getDeviceIdAwaitingAdd(userId, partialDeviceId) {
+    getParticleIdAwaitingAdd(userId, partialDeviceId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (partialDeviceId.trim().length < 7) {
                 throw new Error('Must enter at 7 characters to search for device');
             }
-            const pipeline = [
-                {
-                    '$project': {
-                        '_id': 0,
-                        'le': '$$ROOT'
-                    }
-                },
-                {
-                    '$lookup': {
-                        'localField': 'le._id.n',
-                        'from': 'locations',
-                        'foreignField': 'devices.id',
-                        'as': 'l'
-                    }
-                },
-                {
-                    '$unwind': {
-                        'path': '$l',
-                        'preserveNullAndEmptyArrays': true
-                    }
-                },
-                {
-                    '$match': {
-                        'le._id.n': new bson_1.BSONRegExp('^' + partialDeviceId + '.*$', 'i'),
-                        'l.name': null
-                    }
-                },
-                {
-                    '$project': {
-                        'le._id.n': '$le._id.n'
-                    }
-                },
-                {
-                    '$limit': 1
+            const unassignedDevice = yield UnassignedDeviceSchema_1.UnassignedDevice.findOne({
+                particleId: new RegExp('^' + partialDeviceId + '.*$', 'i'),
+                lastSeen: {
+                    "$gte": new Date(new Date().getTime() - (1000 * 60 * 5))
                 }
-            ];
-            const array = yield LogEntrySchema_1.LogEntry.aggregate(pipeline);
-            if (array.length === 0) {
+            });
+            if (!unassignedDevice) {
                 return null;
             }
-            return array[0].le._id.n;
+            return unassignedDevice.particleId;
         });
     }
-    updateDeviceForSave(postedDevice, deviceInDb) {
+    setDevicePropertiesFromPost(postedDevice, deviceInDb) {
         deviceInDb.name = postedDevice.name;
         deviceInDb.minHeatRise = postedDevice.minHeatRise;
         deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
         deviceInDb.disabled = postedDevice.disabled;
         deviceInDb.reversed = postedDevice.reversed;
+        deviceInDb.id = new bson_1.ObjectID().toHexString();
     }
 }
 exports.HvacService = HvacService;
