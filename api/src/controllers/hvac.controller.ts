@@ -101,7 +101,7 @@ router.put('/deviceEdit/:deviceId', AuthenticationService.verifyToken,
                 return res.status(404).send();
             }
 
-            hvacService.updateDeviceForSave(postedDevice, deviceInDb);
+            hvacService.setDevicePropertiesFromPost(postedDevice, deviceInDb);
 
             await locationInDb.save();
 
@@ -123,18 +123,18 @@ router.post('/deviceEdit/:locationId', AuthenticationService.verifyToken,
 
             const postedDevice = req.body as IDevice;
             const deviceInDb = {} as IDevice;
-            hvacService.updateDeviceForSave(postedDevice, deviceInDb);
+            hvacService.setDevicePropertiesFromPost(postedDevice, deviceInDb);
 
             if (locationInDb.devices.find((dev) => dev.name.toUpperCase() === postedDevice.name.toUpperCase())) {
                 throw new Error('Must have unique name');
             }
 
-            const deviceId = await hvacService.getDeviceIdAwaitingAdd(req.user.id, postedDevice.id);
+            const particleId = await hvacService.getParticleIdAwaitingAdd(req.user.id, postedDevice.id);
 
-            if (!deviceId) {
-                throw new Error('Device id not found');
+            if (!particleId) {
+                throw new Error('Cannot find the device to add.  Please be sure the device is connected to a network.');
             } else {
-                deviceInDb.id = deviceId;
+                deviceInDb.particleId = particleId;
             }
 
             locationInDb.devices.push(deviceInDb);

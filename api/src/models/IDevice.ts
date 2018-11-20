@@ -6,6 +6,7 @@ export interface IDevice extends mongoose.Document {
   minHeatRise: number;
   maxHeatRise: number;
   id: string;
+  particleId: string;
   disabled: boolean;
   reversed: boolean;
 }

@@ -1,10 +1,21 @@
-import { ObjectId, BSONRegExp } from 'bson';
+import { ObjectId, BSONRegExp, ObjectID, BSON } from 'bson';
 import { Location } from '../models/LocationSchema';
 import { ILocation } from '../models/ILocation';
 import { LogEntry } from '../models/LogEntrySchema';
-import { ILogEntry } from '../models/ILogEntry';
+import { ILogEntry, ILogEntryId } from '../models/ILogEntry';
 import { IDevice } from '../models/IDevice';
+import { UnassignedDevice } from '../models/UnassignedDeviceSchema';
 
+export interface IStartEndResult extends ILogEntry {
+    start: boolean;
+    end: boolean;
+    minusOne: {
+        t: number;
+    };
+    minusTwo: {
+        t: number;
+    };
+}
 export class HvacService {
     public async getLocationForEdit(userId: ObjectId, locationId: string) {
         return await Location.findOne({
@@ -32,59 +43,29 @@ export class HvacService {
         return device;
     }
 
-    public async getDeviceIdAwaitingAdd(userId: ObjectId, partialDeviceId: string) {
+    public async getParticleIdAwaitingAdd(userId: ObjectId, partialDeviceId: string) {
         if (partialDeviceId.trim().length < 7) {
             throw new Error('Must enter at 7 characters to search for device');
         }
-        const pipeline = [
-            {
-                '$project': {
-                    '_id': 0,
-                    'le': '$$ROOT'
-                }
-            },
-            {
-                '$lookup': {
-                    'localField': 'le._id.n',
-                    'from': 'locations',
-                    'foreignField': 'devices.id',
-                    'as': 'l'
-                }
-            },
-            {
-                '$unwind': {
-                    'path': '$l',
-                    'preserveNullAndEmptyArrays': true
-                }
-            },
-            {
-                '$match': {
-                    'le._id.n': new BSONRegExp('^' + partialDeviceId + '.*$', 'i'),
-                    'l.name': null
-                }
-            },
-            {
-                '$project': {
-                    'le._id.n': '$le._id.n'
-                }
-            },
-            {
-                '$limit': 1
+        const unassignedDevice = await UnassignedDevice.findOne({
+            particleId: new RegExp('^' + partialDeviceId + '.*$', 'i'),
+            lastSeen: {
+                "$gte": new Date(new Date().getTime() - (1000 * 60 * 5))
             }
-        ];
+        });
 
-        const array = await LogEntry.aggregate(pipeline) as any;
-        if (array.length === 0) {
+        if (!unassignedDevice) {
             return null;
         }
-        return ((array[0] as any).le as ILogEntry)._id.n;
+        return unassignedDevice.particleId;
     }
 
-    public updateDeviceForSave(postedDevice: IDevice, deviceInDb: IDevice) {
+    public setDevicePropertiesFromPost(postedDevice: IDevice, deviceInDb: IDevice) {
         deviceInDb.name = postedDevice.name;
         deviceInDb.minHeatRise = postedDevice.minHeatRise;
         deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
         deviceInDb.disabled = postedDevice.disabled;
         deviceInDb.reversed = postedDevice.reversed;
+        deviceInDb.id = new ObjectID().toHexString();
     }
 }
