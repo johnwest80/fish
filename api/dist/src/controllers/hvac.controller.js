@@ -112,7 +112,9 @@ router.post('/deviceEdit/:locationId', AuthenticationService_1.AuthenticationSer
             return res.status(404).send();
         }
         const postedDevice = req.body;
-        const deviceInDb = {};
+        const deviceInDb = {
+            id: new bson_1.ObjectID().toHexString()
+        };
         hvacService.setDevicePropertiesFromPost(postedDevice, deviceInDb);
         if (locationInDb.devices.find((dev) => dev.name.toUpperCase() === postedDevice.name.toUpperCase())) {
             throw new Error('Must have unique name');

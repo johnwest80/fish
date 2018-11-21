@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const bson_1 = require("bson");
 const LocationSchema_1 = require("../models/LocationSchema");
 const UnassignedDeviceSchema_1 = require("../models/UnassignedDeviceSchema");
 class HvacService {
@@ -64,7 +63,7 @@ class HvacService {
         deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
         deviceInDb.disabled = postedDevice.disabled;
         deviceInDb.reversed = postedDevice.reversed;
-        deviceInDb.id = new bson_1.ObjectID().toHexString();
+        deviceInDb.filterSize = postedDevice.filterSize;
     }
 }
 exports.HvacService = HvacService;
