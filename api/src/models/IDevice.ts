@@ -9,4 +9,5 @@ export interface IDevice extends mongoose.Document {
   particleId: string;
   disabled: boolean;
   reversed: boolean;
+  filterSize: string;
 }

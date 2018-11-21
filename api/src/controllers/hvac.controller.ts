@@ -6,7 +6,7 @@ import { AuthenticationService, IAuthenticatedRequest } from '../services/Authen
 import { HvacService } from '../services/hvac.service';
 import { ILocation } from '../models/ILocation';
 import { IDevice } from '../models/IDevice';
-import { ObjectId } from 'bson';
+import { ObjectId, ObjectID } from 'bson';
 import { IUser } from '../models/iuser';
 
 const router: Router = Router();
@@ -122,7 +122,10 @@ router.post('/deviceEdit/:locationId', AuthenticationService.verifyToken,
             }
 
             const postedDevice = req.body as IDevice;
-            const deviceInDb = {} as IDevice;
+            const deviceInDb = {
+                id: new ObjectID().toHexString()
+            } as IDevice;
+
             hvacService.setDevicePropertiesFromPost(postedDevice, deviceInDb);
 
             if (locationInDb.devices.find((dev) => dev.name.toUpperCase() === postedDevice.name.toUpperCase())) {
@@ -199,7 +202,7 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
                 max: {
                     $max: '$t'
                 },
-                numRuns: { "$sum": { "$cond": [{ "$eq": ["$start", true ] }, 1, 0] } }
+                numRuns: { "$sum": { "$cond": [{ "$eq": ["$start", true] }, 1, 0] } }
             }
         },
         {

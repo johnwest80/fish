@@ -66,6 +66,6 @@ export class HvacService {
         deviceInDb.maxHeatRise = postedDevice.maxHeatRise;
         deviceInDb.disabled = postedDevice.disabled;
         deviceInDb.reversed = postedDevice.reversed;
-        deviceInDb.id = new ObjectID().toHexString();
+        deviceInDb.filterSize = postedDevice.filterSize;
     }
 }

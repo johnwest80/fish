@@ -10,7 +10,8 @@ export const UserDeviceSchema = new Schema({
     id: { type: String, required: true, unique: false },
     particleId: { type: String, required: false, unique: false },
     disabled: { type: Boolean, required: true, default: false },
-    reversed: { type: Boolean, required: true, default: false }
+    reversed: { type: Boolean, required: true, default: false },
+    filterSize: { type: String },
 });
 
 const LocationSchema = new Schema({
