@@ -1,5 +1,6 @@
 import * as mongoose from 'mongoose';
 import { ObjectId } from 'bson';
+import { IDeviceImage } from './IDeviceImage';
 
 export interface IDevice extends mongoose.Document {
   name: string;
@@ -10,4 +11,5 @@ export interface IDevice extends mongoose.Document {
   disabled: boolean;
   reversed: boolean;
   filterSize: string;
+  images: IDeviceImage[];
 }

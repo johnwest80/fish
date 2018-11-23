@@ -3,6 +3,12 @@ import { ILocation } from './ILocation';
 import { ObjectID } from 'bson';
 import { IDevice } from './IDevice';
 
+export const DeviceImageSchema = new Schema({
+    _id: { type: Schema.Types.ObjectId, required: true },
+    name: { type: String, required: true, unique: false },
+    primary: { type: Boolean, required: true, default: false },
+});
+
 export const UserDeviceSchema = new Schema({
     name: { type: String, required: true, unique: false },
     minHeatRise: { type: Number },
@@ -12,6 +18,7 @@ export const UserDeviceSchema = new Schema({
     disabled: { type: Boolean, required: true, default: false },
     reversed: { type: Boolean, required: true, default: false },
     filterSize: { type: String },
+    images: { type: [DeviceImageSchema], required: false },
 });
 
 const LocationSchema = new Schema({

@@ -35,6 +35,17 @@ export class HvacService {
         return location;
     }
 
+    public async getLocationForEditByDeviceImageId(userId: ObjectId, deviceImageId: string) {
+        const location = await Location.findOne({
+            'users._id': userId,
+            'devices.images._id': new ObjectId(deviceImageId)
+        });
+        if (!location) {
+            throw new Error('Location not found');
+        }
+        return location;
+    }
+
     public async getDeviceForEdit(userId: ObjectId, deviceId: string) {
         const device = (await this.getLocationForEditByDeviceId(userId, deviceId)).devices.find((d) => d.id === deviceId);
         if (!device) {
