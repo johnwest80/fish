@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const bson_1 = require("bson");
 const LocationSchema_1 = require("../models/LocationSchema");
 const UnassignedDeviceSchema_1 = require("../models/UnassignedDeviceSchema");
 class HvacService {
@@ -24,6 +25,18 @@ class HvacService {
             const location = yield LocationSchema_1.Location.findOne({
                 'users._id': userId,
                 'devices.id': deviceId
+            });
+            if (!location) {
+                throw new Error('Location not found');
+            }
+            return location;
+        });
+    }
+    getLocationForEditByDeviceImageId(userId, deviceImageId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const location = yield LocationSchema_1.Location.findOne({
+                'users._id': userId,
+                'devices.images._id': new bson_1.ObjectId(deviceImageId)
             });
             if (!location) {
                 throw new Error('Location not found');
