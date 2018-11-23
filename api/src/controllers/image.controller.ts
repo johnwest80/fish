@@ -147,5 +147,36 @@ router.post('/imageEdit/:deviceId', AuthenticationService.verifyToken,
         }
     });
 
+router.delete('/imageEdit/:deviceImageId', AuthenticationService.verifyToken,
+    async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
+        const hvacService = new HvacService();
+
+        const deviceImageId = req.params.deviceImageId;
+
+        try {
+            let locationInDb = await hvacService.getLocationForEditByDeviceImageId(req.user._id, deviceImageId) as ILocation;
+            if (locationInDb === null) {
+                return res.status(404).send();
+            }
+            const deviceInDb = locationInDb.devices
+                .find(x => x.images.find(y => y._id.equals(new ObjectId(deviceImageId))) != null) as IDevice;
+            if (deviceInDb === undefined) {
+                return res.status(404).send();
+            }
+
+            const deviceImageInDb = deviceInDb.images.find(x => x._id.equals(new ObjectId(deviceImageId)));
+            if (deviceImageInDb === undefined) {
+                return res.status(404).send();
+            }
+
+            deviceInDb.images = deviceInDb.images.filter(image => image !== deviceImageInDb);
+            locationInDb = await locationInDb.save();
+
+            return res.send(locationInDb);
+        } catch (ex) {
+            res.status(500).send(ex);
+        }
+    });
+
 // Export the express.Router() instance to be used by server.ts
 export const ImageController: Router = router;
