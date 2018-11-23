@@ -21,7 +21,7 @@ const imageService = new DeviceImageService();
 router.get('/sas/:name', AuthenticationService.verifyToken, (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
     let blobService: azure.BlobService;
     try {
-        blobService = azure.createBlobService('UseDevelopmentStorage=true');
+        blobService = azure.createBlobService();
     } catch (ex) {
         res.send(ex.toString());
         return;
