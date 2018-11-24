@@ -133,6 +133,31 @@ router.post('/imageEdit/:deviceId', AuthenticationService_1.AuthenticationServic
         res.status(500).send(ex);
     }
 }));
+router.delete('/imageEdit/:deviceImageId', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    const deviceImageId = req.params.deviceImageId;
+    try {
+        let locationInDb = yield hvacService.getLocationForEditByDeviceImageId(req.user._id, deviceImageId);
+        if (locationInDb === null) {
+            return res.status(404).send();
+        }
+        const deviceInDb = locationInDb.devices
+            .find(x => x.images.find(y => y._id.equals(new bson_1.ObjectId(deviceImageId))) != null);
+        if (deviceInDb === undefined) {
+            return res.status(404).send();
+        }
+        const deviceImageInDb = deviceInDb.images.find(x => x._id.equals(new bson_1.ObjectId(deviceImageId)));
+        if (deviceImageInDb === undefined) {
+            return res.status(404).send();
+        }
+        deviceInDb.images = deviceInDb.images.filter(image => image !== deviceImageInDb);
+        locationInDb = yield locationInDb.save();
+        return res.send(locationInDb);
+    }
+    catch (ex) {
+        res.status(500).send(ex);
+    }
+}));
 // Export the express.Router() instance to be used by server.ts
 exports.ImageController = router;
 //# sourceMappingURL=image.controller.js.map
