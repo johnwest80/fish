@@ -217,7 +217,9 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
     }).catch((ex) => res.status(500).send(ex));
 });
 
-router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken, (req: Request, res: Response) => {
+router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken, async (req: IAuthenticatedRequest, res: Response) => {
+    const hvacService = new HvacService();
+    const location = await hvacService.getLocationForEditByDeviceId(req.user._id, req.params.id);
     const pipeline = [
         {
             $match:
@@ -245,7 +247,7 @@ router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken
                             $expr: {
                                 $and: [
                                     { $eq: ['$d', '$$calendarDate'] },
-                                    { $eq: ['$z', '30004'] }
+                                    { $eq: ['$z', location.zipCode] }
                                 ]
                             }
 
