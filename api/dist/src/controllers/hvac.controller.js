@@ -198,7 +198,9 @@ router.get('/history/:id', AuthenticationService_1.AuthenticationService.verifyT
         res.send(result);
     }).catch((ex) => res.status(500).send(ex));
 });
-router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => {
+router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    const location = yield hvacService.getLocationForEditByDeviceId(req.user._id, req.params.id);
     const pipeline = [
         {
             $match: {
@@ -224,7 +226,7 @@ router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService_1.Authentic
                             $expr: {
                                 $and: [
                                     { $eq: ['$d', '$$calendarDate'] },
-                                    { $eq: ['$z', '30004'] }
+                                    { $eq: ['$z', location.zipCode] }
                                 ]
                             }
                         }
@@ -275,6 +277,6 @@ router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService_1.Authentic
     CalendarMinuteSchema_1.CalendarMinute.aggregate(pipeline).then((result) => {
         res.send(result);
     }).catch((ex) => res.status(500).send(ex));
-});
+}));
 exports.HvacController = router;
 //# sourceMappingURL=hvac.controller.js.map
