@@ -134,6 +134,35 @@ router.post('/deviceEdit/:locationId', AuthenticationService_1.AuthenticationSer
         return next(ex);
     }
 }));
+router.put('/deviceReplace/:deviceId', AuthenticationService_1.AuthenticationService.verifyToken, (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    const hvacService = new hvac_service_1.HvacService();
+    try {
+        const locationInDb = yield hvacService.getLocationForEditByDeviceId(req.user._id, req.params.deviceId);
+        if (locationInDb === null) {
+            return res.status(404).send();
+        }
+        const deviceInDb = locationInDb.devices.find((dev) => dev.id === req.params.deviceId);
+        if (deviceInDb === undefined) {
+            return res.status(404).send();
+        }
+        const postedDevice = req.body;
+        if (postedDevice === undefined) {
+            return res.status(404).send();
+        }
+        const particleId = yield hvacService.getParticleIdAwaitingAdd(req.user.id, postedDevice.particleId);
+        if (!particleId) {
+            throw new Error('Cannot find the device to add.  Please be sure the device is connected to a network.');
+        }
+        else {
+            deviceInDb.particleId = particleId;
+        }
+        yield locationInDb.save();
+        return res.send();
+    }
+    catch (ex) {
+        return next(ex);
+    }
+}));
 router.get('/lastEntry/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => {
     const pipeline = [
         {
