@@ -235,7 +235,11 @@ router.get('/lastEntries', AuthenticationService.verifyToken, (req: IAuthenticat
           $project: {
             "_id": 0,
             "deviceId": "$devices.id",
-            "lastSeen": "$l._id.d"
+            "lastSeen": "$l._id.d",
+            "i": "$l.i",
+            "o": "$l.o",
+            "t": "$l.t",
+            "w": "$l.w"
           }
         }
     ];
