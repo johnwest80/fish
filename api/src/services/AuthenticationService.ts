@@ -43,7 +43,7 @@ export class AuthenticationService {
                         res.status(401).send('Username or password incorrect.');
                     } else {
                         const token = jwt.sign({ id: user._id }, tokenSecret, {
-                            expiresIn: 86400 // expires in 24 hours
+                            expiresIn: 86400 * 7 // expires in 7 days
                         });
                         res.status(200).send({ accessToken: token, roles: ['ADMIN'], refreshToken: 'none' });
                     }

@@ -11,6 +11,11 @@ import { IUser } from '../models/iuser';
 
 const router: Router = Router();
 
+export interface ILastEntriesResult {
+    deviceId: string;
+    lastSeen: Date;
+}
+
 router.get('/locations', AuthenticationService.verifyToken, async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
         const result = await Location.find({
@@ -20,7 +25,8 @@ router.get('/locations', AuthenticationService.verifyToken, async (req: IAuthent
                 "name": 1,
                 "devices": 1,
                 "disabled": 1,
-                "zipCode": 1
+                "zipCode": 1,
+                "timezone": 1
             });
 
         res.send(result);
@@ -184,6 +190,60 @@ router.put('/deviceReplace/:deviceId', AuthenticationService.verifyToken,
             return next(ex);
         }
     });
+
+router.get('/lastEntries', AuthenticationService.verifyToken, (req: IAuthenticatedRequest, res: Response) => {
+    const pipeline = [
+        {
+            $match: {
+                'users._id': req.user._id
+            }
+        },
+        {
+          $unwind: '$devices'
+        },
+        {
+            $lookup: {
+                from: 'logentries',
+                let: { deviceId: '$devices.id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and:
+                                    [
+                                        { $eq: ['$_id.n', '$$deviceId'] },
+                                    ]
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            '_id.d': -1.0
+                        }
+                    },
+                    {
+                        $limit: 1
+                    }
+                ],
+                as: 'l'
+            }
+        },
+        {
+          $unwind: "$l"
+        },
+        {
+          $project: {
+            "_id": 0,
+            "deviceId": "$devices.id",
+            "lastSeen": "$l._id.d"
+          }
+        }
+    ];
+
+    Location.aggregate(pipeline).then((result: ILastEntriesResult[]) => {
+        res.send(result);
+    }).catch((ex) => res.status(500).send(ex));
+});
 
 router.get('/lastEntry/:id', AuthenticationService.verifyToken, (req: Request, res: Response) => {
     const pipeline = [
