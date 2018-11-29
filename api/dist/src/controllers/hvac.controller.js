@@ -25,7 +25,8 @@ router.get('/locations', AuthenticationService_1.AuthenticationService.verifyTok
             "name": 1,
             "devices": 1,
             "disabled": 1,
-            "zipCode": 1
+            "zipCode": 1,
+            "timezone": 1
         });
         res.send(result);
     }
@@ -163,6 +164,57 @@ router.put('/deviceReplace/:deviceId', AuthenticationService_1.AuthenticationSer
         return next(ex);
     }
 }));
+router.get('/lastEntries', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => {
+    const pipeline = [
+        {
+            $match: {
+                'users._id': req.user._id
+            }
+        },
+        {
+            $unwind: '$devices'
+        },
+        {
+            $lookup: {
+                from: 'logentries',
+                let: { deviceId: '$devices.id' },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ['$_id.n', '$$deviceId'] },
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            '_id.d': -1.0
+                        }
+                    },
+                    {
+                        $limit: 1
+                    }
+                ],
+                as: 'l'
+            }
+        },
+        {
+            $unwind: "$l"
+        },
+        {
+            $project: {
+                "_id": 0,
+                "deviceId": "$devices.id",
+                "lastSeen": "$l._id.d"
+            }
+        }
+    ];
+    LocationSchema_1.Location.aggregate(pipeline).then((result) => {
+        res.send(result);
+    }).catch((ex) => res.status(500).send(ex));
+});
 router.get('/lastEntry/:id', AuthenticationService_1.AuthenticationService.verifyToken, (req, res) => {
     const pipeline = [
         {
