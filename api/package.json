@@ -10,6 +10,7 @@
     "build": "node_modules/.bin/tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "set:dev": "ri env:\\database ; ri env:\\dbusername ; ri env:\\dbpassword ; ri env:\\dbname ; ri env:\\secret",
+    "install": "npm run build",
     "start": "node dist/src/server.js",
     "start:dev": "npm run lint && npm run build:live",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
