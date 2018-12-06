@@ -283,31 +283,20 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
             }
         },
         {
-            $addFields: {
-                yearMonthDay: {
-                    $dateToString: {
-                        format: '%Y-%m-%d',
-                        date: '$_id.d',
-                        timezone: 'America/New_York'
-                    }
-                }
-            }
-        },
-        {
             $group: {
-                _id: '$yearMonthDay',
+                _id: { d: '$ymd', n: '$_id.n' },
                 min: {
-                    $min: '$t'
+                    $min: { '$subtract': [ '$o', '$i'] }
                 },
                 max: {
-                    $max: '$t'
+                    $max: { '$subtract': [ '$o', '$i'] }
                 },
-                numRuns: { "$sum": { "$cond": [{ "$eq": ["$start", true] }, 1, 0] } }
+                numRuns: { "$sum": { "$cond": [{ "$eq": ["$end", true] }, 1, 0] } }
             }
         },
         {
             $sort: {
-                _id: 1
+                "_id.d": 1
             }
         }
     ];
