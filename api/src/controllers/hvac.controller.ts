@@ -284,7 +284,7 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
         },
         {
             $group: {
-                _id: { d: '$ymd', n: '$_id.n' },
+                _id: '$ymd',
                 min: {
                     $min: { '$subtract': [ '$o', '$i'] }
                 },
@@ -296,7 +296,7 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
         },
         {
             $sort: {
-                "_id.d": 1
+                "_id": 1
             }
         }
     ];
