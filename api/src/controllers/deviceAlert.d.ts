@@ -16,4 +16,3 @@ export interface IGetAlertsResult {
         name: string;
     };
 }
-
