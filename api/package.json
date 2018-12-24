@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^6.3.1",
     "@types/jsonwebtoken": "^7.2.6",
     "@types/morgan": "^1.7.35",
     "azure-storage": "^2.10.2",
