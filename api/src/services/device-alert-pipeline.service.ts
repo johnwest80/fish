@@ -75,14 +75,14 @@ export class DeviceAlertPipelineService {
             {
                 $lookup: {
                     from: 'logentries',
-                    let: { particleId: '$devices.particleId' },
+                    let: { id: '$devices.id' },
                     pipeline: [
                         {
                             $match: {
                                 $expr: {
                                     $and:
                                         [
-                                            { $eq: ['$_id.n', '$$particleId'] },
+                                            { $eq: ['$_id.n', '$$id'] },
                                         ]
                                 }
                             }
