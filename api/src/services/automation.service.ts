@@ -1,0 +1,92 @@
+import { Response, Request, NextFunction } from 'express';
+import { DeviceAlertPipelineService } from './device-alert-pipeline.service';
+import { ObjectID, ObjectId } from 'mongodb';
+import { Location } from '../models/LocationSchema';
+import { DeviceAlert } from '../models/DeviceAlertSchema';
+import { EmailService } from './email.service';
+import { IDeviceAlert } from '../models/IDeviceAlert';
+import { IAlertMeta } from '../models/IAlertMeta';
+
+interface IDevicesNotConnected {
+    d: Date;
+    location: {
+        _id: ObjectID,
+        name: string,
+        timezone: string
+    };
+    device: {
+        id: string,
+        name: string
+    };
+}
+
+interface IAlertsToSend {
+    location: {
+        _id: ObjectID,
+        name: string,
+        timezone: string
+    };
+    device: {
+        id: string,
+        name: string
+    };
+    alert: IDeviceAlert;
+    alertMeta: IAlertMeta;
+    userinfo: {
+        email: string;
+        name: string;
+    };
+}
+
+export class AutomationService {
+    public static verifyRequest(req: Request, res: Response, next: NextFunction) {
+        const securityKey = req.query.securityKey;
+        if (!securityKey) {
+            return res.status(403).send({ auth: false, message: 'No security key provided.' });
+        }
+        if (securityKey && securityKey.trim().length > 10 && securityKey === process.env.securityKey) {
+            next();
+        } else {
+            return res.status(401).send('Security key incorrect.');
+        }
+    }
+
+    public static async processDevicesNotConnectedWithinXMinutes() {
+        const minutes = 15;
+        const pipeline = DeviceAlertPipelineService.findDevicesNotConnectedWithinXMinutes(minutes);
+        const alerts = await Location.aggregate(pipeline) as IDevicesNotConnected[];
+        let alertsProcessed = 0;
+        for (const alert of alerts) {
+            const deviceAlert = new DeviceAlert();
+            deviceAlert._id = new ObjectId();
+            deviceAlert.deviceId = alert.device.id;
+            deviceAlert.d = new Date();
+            deviceAlert.alertCode = 'notResponsive';
+            deviceAlert.message = `Device not seen in at least ${minutes} minutes`;
+            await deviceAlert.save();
+            alertsProcessed++;
+        }
+        return alertsProcessed;
+    }
+
+    public static async sendEmail() {
+        const pipeline = DeviceAlertPipelineService.findAlertsToEmail();
+        const alerts = await Location.aggregate(pipeline) as IAlertsToSend[];
+
+        let emailsSent = 0;
+        for (const alert of alerts) {
+            const msg = {
+                to: alert.userinfo.email,
+                from: 'noreply@orbaco.com',
+                subject: `Device alert (${alert.alert.alertCode}) on ${alert.device.name} at ${alert.location.name}`,
+                text: `${alert.alert.message}`,
+            };
+            await EmailService.sendEmail(msg);
+
+            await DeviceAlert.update({ _id: alert.alert._id }, { $set: { emailSent: true, emailSentDate: new Date() } });
+
+            emailsSent++;
+        }
+        return emailsSent;
+    }
+}

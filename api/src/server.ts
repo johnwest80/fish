@@ -10,6 +10,8 @@ import { SecurityController } from './controllers/security.controller';
 import { HvacController } from './controllers/hvac.controller';
 import { UserController } from './controllers/user.controller';
 import { ImageController } from './controllers/image.controller';
+import { DeviceAlertController } from './controllers/deviceAlert.controller';
+import { AutomationController } from './controllers/automation.controller';
 
 mongoose.connect(process.env.database || database,
   { user: process.env.dbUsername || dbUsername, pass: process.env.dbPassword || dbPassword, dbName: process.env.dbName || dbName });
@@ -36,6 +38,8 @@ db.once('open', () => {
   app.use('/hvac', HvacController);
   app.use('/user', UserController);
   app.use('/image', ImageController);
+  app.use('/deviceAlert', DeviceAlertController);
+  app.use('/automation', AutomationController);
 
   app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (error && error.message) {
