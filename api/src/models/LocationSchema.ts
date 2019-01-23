@@ -19,6 +19,11 @@ export const UserDeviceSchema = new Schema({
     reversed: { type: Boolean, required: true, default: false },
     filterSize: { type: String },
     images: { type: [DeviceImageSchema], required: false },
+    baseline: {
+        heat: { type: Number },
+        cool: { type: Number },
+        tolerancePercent: { type: Number },
+      }
 });
 
 const LocationSchema = new Schema({

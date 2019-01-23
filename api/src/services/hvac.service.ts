@@ -55,8 +55,8 @@ export class HvacService {
     }
 
     public async getParticleIdAwaitingAdd(userId: ObjectId, partialDeviceId: string) {
-        if (partialDeviceId.trim().length < 7) {
-            throw new Error('Must enter at 7 characters to search for device');
+        if (partialDeviceId.trim().length < 6) {
+            throw new Error('Must enter at 6 characters to search for device');
         }
         const unassignedDevice = await UnassignedDevice.findOne({
             particleId: new RegExp('^' + partialDeviceId + '.*$', 'i'),
@@ -78,5 +78,10 @@ export class HvacService {
         deviceInDb.disabled = postedDevice.disabled;
         deviceInDb.reversed = postedDevice.reversed;
         deviceInDb.filterSize = postedDevice.filterSize;
+        deviceInDb.baseline = {
+            heat: postedDevice.baseline.heat,
+            cool: postedDevice.baseline.cool,
+            tolerancePercent: postedDevice.baseline.tolerancePercent
+        };
     }
 }

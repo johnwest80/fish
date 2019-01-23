@@ -7,6 +7,7 @@ const AlertMetaSchema = new Schema({
     severity: { type: String, required: true },
     autoResolve: { type: Boolean },
     emailOnFailure: { type: Boolean },
+    emailOnResolve: { type: Boolean }
 });
 
 export const DeviceAlert = model<IAlertMeta>('AlertMeta', AlertMetaSchema);

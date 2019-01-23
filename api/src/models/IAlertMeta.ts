@@ -7,4 +7,5 @@ export interface IAlertMeta extends mongoose.Document {
     severity: string;
     autoResolve: boolean;
     emailOnFailure: boolean;
+    emailOnResolve: boolean;
 }

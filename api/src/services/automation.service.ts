@@ -78,7 +78,8 @@ export class AutomationService {
             const msg = {
                 to: alert.userinfo.email,
                 from: 'noreply@orbaco.com',
-                subject: `Device alert (${alert.alert.alertCode}) on ${alert.device.name} at ${alert.location.name}`,
+                subject: `${alert.alert.resolved ? 'Resolved: ' : ''}
+                Device alert (${alert.alert.alertCode}) on ${alert.device.name} at ${alert.location.name}`,
                 text: `${alert.alert.message}`,
             };
             await EmailService.sendEmail(msg);

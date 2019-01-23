@@ -162,7 +162,7 @@ export class DeviceAlertPipelineService {
     }
 
     public static findAlertsToEmail() {
-        return [
+        return     [
             {
                 $match: {
                     $and: [
@@ -184,7 +184,6 @@ export class DeviceAlertPipelineService {
                                     $and:
                                         [
                                             { $eq: ['$deviceId', '$$deviceId'] },
-                                            { $ne: ['$resolved', true] },
                                             { $ne: ['$emailSent', true] }
                                         ]
                                 }
@@ -211,8 +210,13 @@ export class DeviceAlertPipelineService {
                                     $and:
                                         [
                                             { $eq: ['$alertCode', '$$alertCode'] },
-                                            { $eq: ['$emailOnFailure', true] }
-                                        ]
+                                            {
+                                                $or: [
+                                                    { $eq: ['$emailOnFailure', true] },
+                                                    { $eq: ['$emailOnResolve', true] }
+                                                ]
+                                            }
+                                        ],
                                 }
                             }
                         },

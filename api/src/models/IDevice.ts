@@ -12,4 +12,9 @@ export interface IDevice extends mongoose.Document {
   reversed: boolean;
   filterSize: string;
   images: IDeviceImage[];
+  baseline: {
+    heat: number;
+    cool: number;
+    tolerancePercent: number;
+  };
 }
