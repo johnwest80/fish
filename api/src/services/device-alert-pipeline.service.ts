@@ -22,6 +22,7 @@ export class DeviceAlertPipelineService {
                                     $and:
                                         [
                                             { $eq: ['$deviceId', '$$deviceId'] },
+                                            { $ne: ['$resolved', true ] }
                                         ]
                                 }
                             }
