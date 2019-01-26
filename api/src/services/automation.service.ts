@@ -1,11 +1,13 @@
 import { Response, Request, NextFunction } from 'express';
 import { DeviceAlertPipelineService } from './device-alert-pipeline.service';
+import { TempOutOfRangeAlertPipelineService } from './temp-out-of-range-alert-pipeline.service';
 import { ObjectID, ObjectId } from 'mongodb';
 import { Location } from '../models/LocationSchema';
 import { DeviceAlert } from '../models/DeviceAlertSchema';
 import { EmailService } from './email.service';
 import { IDeviceAlert } from '../models/IDeviceAlert';
 import { IAlertMeta } from '../models/IAlertMeta';
+import { IDevice } from '../models/IDevice';
 
 interface IDevicesNotConnected {
     d: Date;
@@ -17,6 +19,19 @@ interface IDevicesNotConnected {
     device: {
         id: string,
         name: string
+    };
+}
+
+interface IDevicesWithTempOutOfRange {
+    devices: IDevice;
+    ends: {
+        _id: string;
+        minMinT: number;
+        maxMaxT: number;
+        avgMinT: number;
+        avgMaxT: number;
+        numMinutes: number;
+        numCycles: number;
     };
 }
 
@@ -65,6 +80,35 @@ export class AutomationService {
             deviceAlert.message = `Device not seen in at least ${minutes} minutes`;
             await deviceAlert.save();
             alertsProcessed++;
+        }
+        return alertsProcessed;
+    }
+
+    public static async processDevicesWithTempOutOfRange() {
+        const pipeline = TempOutOfRangeAlertPipelineService.getTempOutOfRangeAlertPipeline();
+        const alerts = await Location.aggregate(pipeline) as IDevicesWithTempOutOfRange[];
+        let alertsProcessed = 0;
+
+        for (const item of alerts) {
+            if ((item.ends._id === 'heat' && (
+                Math.abs(item.ends.minMinT) > Math.abs(item.devices.baseline.heat) * (1 + (item.devices.baseline.tolerancePercent / 100)) ||
+                Math.abs(item.ends.minMinT) < Math.abs(item.devices.baseline.heat) * (1 - (item.devices.baseline.tolerancePercent / 100))
+            )) || (item.ends._id === 'cool' && (
+                Math.abs(item.ends.maxMaxT) > Math.abs(item.devices.baseline.cool) * (1 + (item.devices.baseline.tolerancePercent / 100)) ||
+                Math.abs(item.ends.maxMaxT) < Math.abs(item.devices.baseline.cool) * (1 - (item.devices.baseline.tolerancePercent / 100))
+            )
+            )) {
+                const deviceAlert = new DeviceAlert();
+                deviceAlert._id = new ObjectId();
+                deviceAlert.deviceId = item.devices.id;
+                deviceAlert.d = new Date();
+                deviceAlert.alertCode = 'outsideOfTempRange';
+                deviceAlert.message = `The max ${item.ends._id} temperature reached by this device is outside the range ` +
+                    `of ${item.ends._id === 'heat' ? Math.abs(item.devices.baseline.heat) : Math.abs(item.devices.baseline.cool)}` +
+                    `+- ${item.devices.baseline.tolerancePercent}%`;
+                await deviceAlert.save();
+                alertsProcessed++;
+            }
         }
         return alertsProcessed;
     }

@@ -18,6 +18,16 @@ router.get('/processDevicesNotConnectedWithinXMinutes', AutomationService.verify
         }
     });
 
+router.get('/processDevicesWithTempOutOfRange', AutomationService.verifyRequest,
+    async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
+        try {
+            const alertsProcessed = await AutomationService.processDevicesWithTempOutOfRange();
+            res.send(`Alerts processed ${alertsProcessed}`);
+        } catch (ex) {
+            res.status(500).send(ex);
+        }
+    });
+
 router.get('/sendEmail', AutomationService.verifyRequest,
     async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
         try {
