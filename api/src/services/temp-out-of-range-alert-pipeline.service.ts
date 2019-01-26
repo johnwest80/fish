@@ -1,6 +1,6 @@
-const MinRuntimeMinutes = 1;
-const MinCycles = 1;
-const NumDaysLookback = 60;
+const MinRuntimeMinutes = 70;
+const MinCycles = 7;
+const NumDaysLookback = 7;
 
 export class TempOutOfRangeAlertPipelineService {
     public static getTempOutOfRangeAlertPipeline() {

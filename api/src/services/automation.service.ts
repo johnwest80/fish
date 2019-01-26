@@ -91,21 +91,23 @@ export class AutomationService {
 
         for (const item of alerts) {
             if ((item.ends._id === 'heat' && (
-                Math.abs(item.ends.minMinT) > Math.abs(item.devices.baseline.heat) * (1 + (item.devices.baseline.tolerancePercent / 100)) ||
-                Math.abs(item.ends.minMinT) < Math.abs(item.devices.baseline.heat) * (1 - (item.devices.baseline.tolerancePercent / 100))
+                Math.abs(item.ends.minMinT) > Math.abs(item.devices.baseline.heat) * (1 + item.devices.baseline.tolerancePercent / 100) ||
+                Math.abs(item.ends.minMinT) < Math.abs(item.devices.baseline.heat) * (1 - item.devices.baseline.tolerancePercent / 100)
             )) || (item.ends._id === 'cool' && (
-                Math.abs(item.ends.maxMaxT) > Math.abs(item.devices.baseline.cool) * (1 + (item.devices.baseline.tolerancePercent / 100)) ||
-                Math.abs(item.ends.maxMaxT) < Math.abs(item.devices.baseline.cool) * (1 - (item.devices.baseline.tolerancePercent / 100))
+                Math.abs(item.ends.maxMaxT) > Math.abs(item.devices.baseline.cool) * (1 + item.devices.baseline.tolerancePercent / 100) ||
+                Math.abs(item.ends.maxMaxT) < Math.abs(item.devices.baseline.cool) * (1 - item.devices.baseline.tolerancePercent / 100)
             )
-            )) {
+                )) {
                 const deviceAlert = new DeviceAlert();
                 deviceAlert._id = new ObjectId();
                 deviceAlert.deviceId = item.devices.id;
                 deviceAlert.d = new Date();
                 deviceAlert.alertCode = 'outsideOfTempRange';
-                deviceAlert.message = `The max ${item.ends._id} temperature reached by this device is outside the range ` +
+                deviceAlert.message = `The max ${item.ends._id} temperature of ` +
+                    `of ${item.ends._id === 'heat' ? Math.abs(item.ends.minMinT) : Math.abs(item.ends.maxMaxT)}` +
+                    `reached by this device is outside the range ` +
                     `of ${item.ends._id === 'heat' ? Math.abs(item.devices.baseline.heat) : Math.abs(item.devices.baseline.cool)}` +
-                    `+- ${item.devices.baseline.tolerancePercent}%`;
+                    ` +- ${item.devices.baseline.tolerancePercent}%`;
                 await deviceAlert.save();
                 alertsProcessed++;
             }
