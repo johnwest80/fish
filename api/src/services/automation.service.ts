@@ -104,7 +104,8 @@ export class AutomationService {
                 deviceAlert.d = new Date();
                 deviceAlert.alertCode = 'outsideOfTempRange';
                 deviceAlert.message = `The max ${item.ends._id} temperature of ` +
-                    `of ${item.ends._id === 'heat' ? Math.abs(item.ends.minMinT) : Math.abs(item.ends.maxMaxT)}` +
+                    `of ${Math.round((item.ends._id === 'heat' ?
+                        Math.abs(item.ends.minMinT) : Math.abs(item.ends.maxMaxT)) * 100) / 100} ` +
                     `reached by this device is outside the range ` +
                     `of ${item.ends._id === 'heat' ? Math.abs(item.devices.baseline.heat) : Math.abs(item.devices.baseline.cool)}` +
                     ` +- ${item.devices.baseline.tolerancePercent}%`;
