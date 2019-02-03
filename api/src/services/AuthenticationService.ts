@@ -3,6 +3,9 @@ import * as jwt from 'jsonwebtoken';
 import { secret } from '../../config/database';
 import { IUser } from '../models/iuser';
 import { User } from '../models/UserSchema';
+import { AuditLogService } from '../services/AuditLogService';
+import { Severity } from '../models/Severity';
+import { AuditLogEntryType } from '../models/AuditLogEntryType';
 
 export interface IAuthenticatedRequest extends Request {
     user: IUser;
@@ -36,16 +39,20 @@ export class AuthenticationService {
             if (err) {
                 res.status(500).send('Error on the server.');
             } else if (!user) {
+                AuditLogService.createEntryForSystem("Error", "Login", `No user found with username ${username}`);
                 res.status(404).send('No user found.');
             } else {
                 user.verifyPassword(req.body.password, (verifyErr) => {
                     if (verifyErr) {
+                        AuditLogService.createEntryForSystem("Error", "Login",
+                            `Username or password incorrect for username ${username}`);
                         res.status(401).send('Username or password incorrect.');
                     } else {
                         const token = jwt.sign({ id: user._id }, tokenSecret, {
                             expiresIn: 86400 * 7 // expires in 7 days
                         });
-                        res.status(200).send({ accessToken: token, roles: ['ADMIN'], refreshToken: 'none' });
+                        AuditLogService.createEntryForUser(user._id, "Success", "Login", `${username}`);
+                        res.status(200).send({ accessToken: token, roles: [user.role || 'USER'], refreshToken: 'none' });
                     }
                 });
             }
