@@ -8,6 +8,7 @@ export interface IUser extends mongoose.Document {
   email: string;
   password: string;
   verified: boolean;
+  role: string;
 
   verifyPassword: (pwd: string, cb: (err: any, isMatch?: boolean) => void) => void;
 }
