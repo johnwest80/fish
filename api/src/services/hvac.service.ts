@@ -83,5 +83,6 @@ export class HvacService {
             cool: postedDevice.baseline.cool,
             tolerancePercent: postedDevice.baseline.tolerancePercent
         };
+        deviceInDb.detectLeaksOnClosedPin = postedDevice.detectLeaksOnClosedPin;
     }
 }

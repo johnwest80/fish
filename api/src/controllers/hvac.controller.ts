@@ -239,7 +239,9 @@ router.get('/lastEntries', AuthenticationService.verifyToken, (req: IAuthenticat
             "i": "$l.i",
             "o": "$l.o",
             "t": "$l.t",
-            "w": "$l.w"
+            "w": "$l.w",
+            "opinAlert": "$devices.opinAlert",
+            "cpinAlert": "$devices.cpinAlert"
           }
         }
     ];

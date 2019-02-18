@@ -17,4 +17,5 @@ export interface IDevice extends mongoose.Document {
     cool: number;
     tolerancePercent: number;
   };
+  detectLeaksOnClosedPin: boolean;
 }
