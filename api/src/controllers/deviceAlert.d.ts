@@ -1,10 +1,13 @@
-import { ObjectID } from "mongodb";
+import { ObjectID, ObjectId } from "mongodb";
 
 export interface IGetAlertsResult {
     alert: {
+        _id: ObjectId,
         d: Date,
         alertCode: string,
-        message: string
+        message: string,
+        resolved: boolean,
+        resolvedDate: Date
     };
     location: {
         _id: ObjectID,

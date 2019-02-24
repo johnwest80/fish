@@ -47,9 +47,12 @@ export class DeviceAlertPipelineService {
                         name: '$devices.name',
                     },
                     alert: {
+                        _id: 1,
                         d: 1,
                         alertCode: 1,
-                        message: 1
+                        message: 1,
+                        resolved: 1,
+                        resolvedDate: 1
                     }
                 }
             },

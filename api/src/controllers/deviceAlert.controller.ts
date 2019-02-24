@@ -11,10 +11,15 @@ import { IUser } from '../models/iuser';
 import { Location } from '../models/LocationSchema';
 import { DeviceAlertPipelineService } from '../services/device-alert-pipeline.service';
 import { IGetAlertsResult } from './deviceAlert';
+import { IDeviceAlert } from '../models/IDeviceAlert';
 
 const router: Router = Router();
 export enum AlertCode {
     LowReturnTemp
+}
+
+export interface IPostedAlert {
+    resolved: boolean;
 }
 
 router.get('/alerts', AuthenticationService.verifyToken,
@@ -45,6 +50,37 @@ router.get('/alerts/:deviceId', AuthenticationService.verifyToken,
             }).sort({ d: 1 });
 
             res.send(alerts);
+        } catch (ex) {
+            res.status(500).send(ex);
+        }
+    });
+
+router.put('/alerts/:alertId', AuthenticationService.verifyToken,
+    async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
+        const alertId = req.params.alertId;
+        const postedDevice = req.body as IPostedAlert;
+
+        try {
+            const alert = await DeviceAlert.findOne({
+                "_id": alertId
+            }).sort({ d: 1 });
+
+            if (!alert) {
+                throw new Error('Alert not found');
+            }
+
+            const count = await Location.findOne({
+                "users._id": req.user._id,
+                "devices.id": alert.deviceId
+            }).count();
+
+            if (count === 0) {
+                throw new Error('Device not found');
+            }
+
+            alert.resolved = !!postedDevice.resolved;
+            alert.save();
+            res.send(alert);
         } catch (ex) {
             res.status(500).send(ex);
         }
