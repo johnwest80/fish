@@ -11,6 +11,8 @@ const security_controller_1 = require("./controllers/security.controller");
 const hvac_controller_1 = require("./controllers/hvac.controller");
 const user_controller_1 = require("./controllers/user.controller");
 const image_controller_1 = require("./controllers/image.controller");
+const deviceAlert_controller_1 = require("./controllers/deviceAlert.controller");
+const automation_controller_1 = require("./controllers/automation.controller");
 mongoose.connect(process.env.database || database_1.database, { user: process.env.dbUsername || database_1.dbUsername, pass: process.env.dbPassword || database_1.dbPassword, dbName: process.env.dbName || database_1.dbName });
 const db = mongoose.connection;
 db.once('open', () => {
@@ -32,6 +34,8 @@ db.once('open', () => {
     app.use('/hvac', hvac_controller_1.HvacController);
     app.use('/user', user_controller_1.UserController);
     app.use('/image', image_controller_1.ImageController);
+    app.use('/deviceAlert', deviceAlert_controller_1.DeviceAlertController);
+    app.use('/automation', automation_controller_1.AutomationController);
     app.use((error, req, res, next) => {
         if (error && error.message) {
             res.status(500).json({ error: error.message });

@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jwt = __importStar(require("jsonwebtoken"));
 const database_1 = require("../../config/database");
 const UserSchema_1 = require("../models/UserSchema");
+const AuditLogService_1 = require("../services/AuditLogService");
 const tokenSecret = process.env.secret || database_1.secret;
 class AuthenticationService {
     static verifyToken(req, res, next) {
@@ -37,18 +38,21 @@ class AuthenticationService {
                 res.status(500).send('Error on the server.');
             }
             else if (!user) {
+                AuditLogService_1.AuditLogService.createEntryForSystem("Error", "Login", `No user found with username ${username}`);
                 res.status(404).send('No user found.');
             }
             else {
                 user.verifyPassword(req.body.password, (verifyErr) => {
                     if (verifyErr) {
+                        AuditLogService_1.AuditLogService.createEntryForSystem("Error", "Login", `Username or password incorrect for username ${username}`);
                         res.status(401).send('Username or password incorrect.');
                     }
                     else {
                         const token = jwt.sign({ id: user._id }, tokenSecret, {
                             expiresIn: 86400 * 7 // expires in 7 days
                         });
-                        res.status(200).send({ accessToken: token, roles: ['ADMIN'], refreshToken: 'none' });
+                        AuditLogService_1.AuditLogService.createEntryForUser(user._id, "Success", "Login", `${username}`);
+                        res.status(200).send({ accessToken: token, roles: [user.role || 'USER'], refreshToken: 'none' });
                     }
                 });
             }

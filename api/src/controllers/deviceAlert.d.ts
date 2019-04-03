@@ -1,4 +1,5 @@
 import { ObjectID, ObjectId } from "mongodb";
+import { AlertCode } from '../models/AlertCode';
 
 export interface IGetAlertsResult {
     alert: {

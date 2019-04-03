@@ -211,7 +211,9 @@ router.get('/lastEntries', AuthenticationService_1.AuthenticationService.verifyT
                 "i": "$l.i",
                 "o": "$l.o",
                 "t": "$l.t",
-                "w": "$l.w"
+                "w": "$l.w",
+                "opinAlert": "$devices.opinAlert",
+                "cpinAlert": "$devices.cpinAlert"
             }
         }
     ];
@@ -251,31 +253,20 @@ router.get('/history/:id', AuthenticationService_1.AuthenticationService.verifyT
             }
         },
         {
-            $addFields: {
-                yearMonthDay: {
-                    $dateToString: {
-                        format: '%Y-%m-%d',
-                        date: '$_id.d',
-                        timezone: 'America/New_York'
-                    }
-                }
-            }
-        },
-        {
             $group: {
-                _id: '$yearMonthDay',
+                _id: '$ymd',
                 min: {
-                    $min: '$t'
+                    $min: { '$subtract': ['$o', '$i'] }
                 },
                 max: {
-                    $max: '$t'
+                    $max: { '$subtract': ['$o', '$i'] }
                 },
-                numRuns: { "$sum": { "$cond": [{ "$eq": ["$start", true] }, 1, 0] } }
+                numRuns: { "$sum": { "$cond": [{ "$eq": ["$end", true] }, 1, 0] } }
             }
         },
         {
             $sort: {
-                _id: 1
+                "_id": 1
             }
         }
     ];

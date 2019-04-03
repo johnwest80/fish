@@ -16,6 +16,14 @@ exports.UserDeviceSchema = new mongoose_1.Schema({
     reversed: { type: Boolean, required: true, default: false },
     filterSize: { type: String },
     images: { type: [exports.DeviceImageSchema], required: false },
+    baseline: {
+        heat: { type: Number },
+        cool: { type: Number },
+        tolerancePercent: { type: Number },
+    },
+    detectLeaksOnClosedPin: { type: Boolean, required: true, default: false },
+    opinAlert: { type: Boolean, default: false },
+    cpinAlert: { type: Boolean, default: false },
 });
 const LocationSchema = new mongoose_1.Schema({
     _id: mongoose_1.Schema.Types.ObjectId,

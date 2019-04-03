@@ -55,8 +55,8 @@ class HvacService {
     }
     getParticleIdAwaitingAdd(userId, partialDeviceId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (partialDeviceId.trim().length < 7) {
-                throw new Error('Must enter at 7 characters to search for device');
+            if (partialDeviceId.trim().length < 6) {
+                throw new Error('Must enter at 6 characters to search for device');
             }
             const unassignedDevice = yield UnassignedDeviceSchema_1.UnassignedDevice.findOne({
                 particleId: new RegExp('^' + partialDeviceId + '.*$', 'i'),
@@ -77,6 +77,12 @@ class HvacService {
         deviceInDb.disabled = postedDevice.disabled;
         deviceInDb.reversed = postedDevice.reversed;
         deviceInDb.filterSize = postedDevice.filterSize;
+        deviceInDb.baseline = {
+            heat: postedDevice.baseline.heat,
+            cool: postedDevice.baseline.cool,
+            tolerancePercent: postedDevice.baseline.tolerancePercent
+        };
+        deviceInDb.detectLeaksOnClosedPin = postedDevice.detectLeaksOnClosedPin;
     }
 }
 exports.HvacService = HvacService;

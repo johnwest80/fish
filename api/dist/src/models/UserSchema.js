@@ -8,7 +8,8 @@ const UserSchema = new mongoose_1.Schema({
     name: String,
     email: { type: String, unique: true, sparse: true },
     password: { type: String, required: true },
-    location: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Location' }
+    location: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Location' },
+    role: { type: String },
 });
 UserSchema.pre('save', function (callback) {
     const user = this;
