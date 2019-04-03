@@ -8,6 +8,7 @@ import { EmailService } from './email.service';
 import { IDeviceAlert } from '../models/IDeviceAlert';
 import { IAlertMeta } from '../models/IAlertMeta';
 import { IDevice } from '../models/IDevice';
+import { AlertCode } from '../models/AlertCode';
 
 interface IDevicesNotConnected {
     d: Date;
@@ -76,7 +77,25 @@ export class AutomationService {
             deviceAlert._id = new ObjectId();
             deviceAlert.deviceId = alert.device.id;
             deviceAlert.d = new Date();
-            deviceAlert.alertCode = 'notResponsive';
+            deviceAlert.alertCode = AlertCode.NotResponsive;
+            deviceAlert.message = `Device not seen in at least ${minutes} minutes`;
+            await deviceAlert.save();
+            alertsProcessed++;
+        }
+        return alertsProcessed;
+    }
+
+    public static async processDevicesIndicatingLeakStatus() {
+        const minutes = 15;
+        const pipeline = DeviceAlertPipelineService.findDevicesNotConnectedWithinXMinutes(minutes);
+        const alerts = await Location.aggregate(pipeline) as IDevicesNotConnected[];
+        let alertsProcessed = 0;
+        for (const alert of alerts) {
+            const deviceAlert = new DeviceAlert();
+            deviceAlert._id = new ObjectId();
+            deviceAlert.deviceId = alert.device.id;
+            deviceAlert.d = new Date();
+            deviceAlert.alertCode = AlertCode.NotResponsive;
             deviceAlert.message = `Device not seen in at least ${minutes} minutes`;
             await deviceAlert.save();
             alertsProcessed++;

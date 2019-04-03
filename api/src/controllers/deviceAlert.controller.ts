@@ -1,25 +1,21 @@
-import { Request, Response, Router, NextFunction } from 'express';
-import { LogEntry } from '../models/LogEntrySchema';
+import { Response, Router, NextFunction } from 'express';
 import { DeviceAlert } from '../models/DeviceAlertSchema';
-import { CalendarMinute } from '../models/CalendarMinuteSchema';
 import { AuthenticationService, IAuthenticatedRequest } from '../services/AuthenticationService';
-import { HvacService } from '../services/hvac.service';
-import { ILocation } from '../models/ILocation';
-import { IDevice } from '../models/IDevice';
-import { ObjectId, ObjectID } from 'bson';
-import { IUser } from '../models/iuser';
 import { Location } from '../models/LocationSchema';
 import { DeviceAlertPipelineService } from '../services/device-alert-pipeline.service';
 import { IGetAlertsResult } from './deviceAlert';
-import { IDeviceAlert } from '../models/IDeviceAlert';
+import { AlertCode } from '../models/AlertCode';
 
 const router: Router = Router();
-export enum AlertCode {
-    LowReturnTemp
-}
-
 export interface IPostedAlert {
     resolved: boolean;
+}
+
+export interface IAlertSummaryResult {
+    deviceAlert: {
+        alertCode: AlertCode
+    };
+    total: number;
 }
 
 router.get('/alerts', AuthenticationService.verifyToken,

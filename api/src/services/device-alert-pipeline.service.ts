@@ -1,4 +1,5 @@
 import { ObjectId } from "bson";
+import { AlertCode } from '../models/AlertCode';
 
 export class DeviceAlertPipelineService {
     public static getAllAlertsPipeline(userId: ObjectId) {
@@ -126,7 +127,7 @@ export class DeviceAlertPipelineService {
                                     $and:
                                         [
                                             { $eq: ['$deviceId', '$$deviceId'] },
-                                            { $eq: ['$alertCode', 'notResponsive'] },
+                                            { $eq: ['$alertCode', AlertCode.NotResponsive] },
                                             { $ne: ['$resolved', true] }
                                         ]
                                 }

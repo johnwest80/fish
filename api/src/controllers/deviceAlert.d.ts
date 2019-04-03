@@ -4,7 +4,7 @@ export interface IGetAlertsResult {
     alert: {
         _id: ObjectId,
         d: Date,
-        alertCode: string,
+        alertCode: AlertCode,
         message: string,
         resolved: boolean,
         resolvedDate: Date
@@ -18,4 +18,11 @@ export interface IGetAlertsResult {
         id: string;
         name: string;
     };
+}
+
+export interface IGetAlertSummaryResult {
+    deviceAlert: {
+        alertCode: AlertCode
+    };
+    total: number;
 }
