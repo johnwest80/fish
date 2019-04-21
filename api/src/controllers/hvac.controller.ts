@@ -7,7 +7,12 @@ import { HvacService } from '../services/hvac.service';
 import { ILocation } from '../models/ILocation';
 import { IDevice } from '../models/IDevice';
 import { ObjectId, ObjectID } from 'bson';
-import { IUser } from '../models/iuser';
+import { StartEndEntry } from '../models/StartEndEntrySchema';
+import { PermissionService } from '../services/permission.service';
+import * as moment from 'moment';
+import * as extendMoment from 'moment-range';
+
+const momentWithRange = extendMoment.extendMoment(moment);
 
 const router: Router = Router();
 
@@ -199,7 +204,7 @@ router.get('/lastEntries', AuthenticationService.verifyToken, (req: IAuthenticat
             }
         },
         {
-          $unwind: '$devices'
+            $unwind: '$devices'
         },
         {
             $lookup: {
@@ -229,20 +234,20 @@ router.get('/lastEntries', AuthenticationService.verifyToken, (req: IAuthenticat
             }
         },
         {
-          $unwind: "$l"
+            $unwind: "$l"
         },
         {
-          $project: {
-            "_id": 0,
-            "deviceId": "$devices.id",
-            "lastSeen": "$l._id.d",
-            "i": "$l.i",
-            "o": "$l.o",
-            "t": "$l.t",
-            "w": "$l.w",
-            "opinAlert": "$devices.opinAlert",
-            "cpinAlert": "$devices.cpinAlert"
-          }
+            $project: {
+                "_id": 0,
+                "deviceId": "$devices.id",
+                "lastSeen": "$l._id.d",
+                "i": "$l.i",
+                "o": "$l.o",
+                "t": "$l.t",
+                "w": "$l.w",
+                "opinAlert": "$devices.opinAlert",
+                "cpinAlert": "$devices.cpinAlert"
+            }
         }
     ];
 
@@ -273,13 +278,18 @@ router.get('/lastEntry/:id', AuthenticationService.verifyToken, (req: Request, r
     }).catch((ex) => res.status(500).send(ex));
 });
 
-router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res: Response) => {
+router.get('/history/:id', AuthenticationService.verifyToken, async (req: IAuthenticatedRequest, res: Response) => {
+    const deviceId = req.params.id;
+    if (!PermissionService.canUserAccessDevice(req.user._id, deviceId)) {
+        res.status(403).send('Not authorized');
+        return;
+    }
     const pipeline = [
         {
             $match: {
                 $and: [
                     {
-                        '_id.n': req.params.id
+                        'id': deviceId
                     }
                 ]
             }
@@ -287,13 +297,36 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
         {
             $group: {
                 _id: '$ymd',
-                min: {
-                    $min: { '$subtract': [ '$o', '$i'] }
+                minCool: {
+                    $min: { "$cond": [{ "$eq": ["$hc", 'cool'] }, '$maxT', null] }
                 },
-                max: {
-                    $max: { '$subtract': [ '$o', '$i'] }
+                maxCool: {
+                    $max: { "$cond": [{ "$eq": ["$hc", 'cool'] }, '$maxT', null] }
                 },
-                numRuns: { "$sum": { "$cond": [{ "$eq": ["$end", true] }, 1, 0] } }
+                minHeat: {
+                    $min: { $abs: { "$cond": [{ "$eq": ["$hc", 'heat'] }, '$minT', null] } }
+                },
+                maxHeat: {
+                    $max: { $abs: { "$cond": [{ "$eq": ["$hc", 'heat'] }, '$minT', null] } }
+                },
+                minTemp: {
+                    $min: '$temperature'
+                },
+                maxTemp: {
+                    $max: '$temperature'
+                },
+                numRuns: { "$sum": 1 }
+            }
+        },
+        {
+            $addFields: {
+                'min': { "$cond": [{ "$gt": ["$minCool", '$minHeat'] }, '$minCool', '$minHeat'] },
+                'max': { "$cond": [{ "$gt": ["$maxCool", '$maxHeat'] }, '$maxCool', '$maxHeat'] },
+                'maxHc': {
+                    "$cond": [{ "$gt": ["$numRuns", 0] },
+                    { "$cond": [{ "$gt": ["$maxCool", '$maxHeat'] }, 'cool', 'heat'] },
+                        'none']
+                }
             }
         },
         {
@@ -303,9 +336,22 @@ router.get('/history/:id', AuthenticationService.verifyToken, (req: Request, res
         }
     ];
 
-    LogEntry.aggregate(pipeline).then((result: any) => {
-        res.send(result);
-    }).catch((ex) => res.status(500).send(ex));
+    try {
+        const result: any[] = await StartEndEntry.aggregate(pipeline);
+        const rangedResults: any[] = [];
+        if (result.length > 0) {
+            const firstDate = result[0]._id;
+            const range = momentWithRange.range(firstDate, new Date());
+
+            for (const day of range.by('day')) {
+                const existingResult = result.find(x => x._id === day.format('YYYY-MM-DD'));
+                rangedResults.push(existingResult || { _id: day.format('YYYY-MM-DD') });
+            }
+        }
+        res.send(rangedResults);
+    } catch (ex) {
+        res.status(500).send(ex);
+    }
 });
 
 router.get('/details/:id/:dateStart/:dateEnd', AuthenticationService.verifyToken, async (req: IAuthenticatedRequest, res: Response) => {
